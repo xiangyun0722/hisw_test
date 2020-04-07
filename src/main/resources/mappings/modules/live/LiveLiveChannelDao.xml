@@ -1,0 +1,200 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.live.dao.LiveLiveChannelDao">
+    
+	<sql id="liveLiveChannelColumns">
+		a.id AS "id",
+		a.name AS "name",
+		a.business_system_id AS "businessSystem.id",
+		a.rel_id AS "relId",
+		a.channel_secret_key AS "channelSecretKey",
+		a.push_rtmp_url AS "pushRtmpUrl",
+		a.transcoding_paras AS "transcodingParas",
+		a.logo AS "logo",
+		a.rtmp_url AS "rtmpUrl",
+		a.hls_url AS "hlsUrl",
+		a.status AS "status",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		a.live_platform as "livePlatform",
+		a.stream_id as "streamId"
+	</sql>
+	
+	<sql id="liveLiveChannelJoins">
+	</sql>
+    
+	<select id="get" resultType="LiveLiveChannel">
+		SELECT 
+			<include refid="liveLiveChannelColumns"/>
+		FROM live_live_channel a
+		<include refid="liveLiveChannelJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="getByRelId" resultType="LiveLiveChannel">
+		SELECT
+			<include refid="liveLiveChannelColumns"/>
+		FROM live_live_channel a
+		<include refid="liveLiveChannelJoins"/>
+		WHERE a.rel_id = #{relId}
+		and a.business_system_id =#{businessSystem.id}
+	</select>
+	
+	<select id="getByChannelSecretKey" resultType="LiveLiveChannel">
+		SELECT 
+			<include refid="liveLiveChannelColumns"/>
+		FROM live_live_channel a
+		<include refid="liveLiveChannelJoins"/>
+		WHERE a.channel_secret_key = #{channelSecretKey}
+	</select>
+	
+	<select id="findList" resultType="LiveLiveChannel">
+		SELECT 
+			<include refid="liveLiveChannelColumns"/>
+		FROM live_live_channel a
+		<include refid="liveLiveChannelJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="name != null and name != ''">
+				AND a.name LIKE 
+					<if test="dbName == 'oracle'">'%'||#{name}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{name}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{name},'%')</if>
+			</if>
+			<if test="relId != null and relId != ''">
+				AND a.rel_id LIKE 
+					<if test="dbName == 'oracle'">'%'||#{relId}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{relId}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{relId},'%')</if>
+			</if>
+			<if test="channelSecretKey != null and channelSecretKey != ''">
+				AND a.channel_secret_key LIKE 
+					<if test="dbName == 'oracle'">'%'||#{channelSecretKey}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{channelSecretKey}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{channelSecretKey},'%')</if>
+			</if>
+			<if test="pushRtmpUrl != null and pushRtmpUrl != ''">
+				AND a.push_rtmp_url LIKE 
+					<if test="dbName == 'oracle'">'%'||#{pushRtmpUrl}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{pushRtmpUrl}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{pushRtmpUrl},'%')</if>
+			</if>
+			<if test="rtmpUrl != null and rtmpUrl != ''">
+				AND a.rtmp_url LIKE 
+					<if test="dbName == 'oracle'">'%'||#{rtmpUrl}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{rtmpUrl}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{rtmpUrl},'%')</if>
+			</if>
+			<if test="hlsUrl != null and hlsUrl != ''">
+				AND a.hls_url LIKE 
+					<if test="dbName == 'oracle'">'%'||#{hlsUrl}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{hlsUrl}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{hlsUrl},'%')</if>
+			</if>
+			<if test="streamId != null and streamId != ''">
+				AND a.stream_id = #{streamId}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="LiveLiveChannel">
+		SELECT 
+			<include refid="liveLiveChannelColumns"/>
+		FROM live_live_channel a
+		<include refid="liveLiveChannelJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO live_live_channel(
+			id,
+			name,
+			business_system_id,
+			rel_id,
+			channel_secret_key,
+			push_rtmp_url,
+			transcoding_paras,
+			logo,
+			rtmp_url,
+			hls_url,
+			status,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag,
+			live_platform,
+			stream_id
+		) VALUES (
+			#{id},
+			#{name},
+			#{businessSystem.id},
+			#{relId},
+			#{channelSecretKey},
+			#{pushRtmpUrl},
+			#{transcodingParas},
+			#{logo},
+			#{rtmpUrl},
+			#{hlsUrl},
+			#{status},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag},
+			#{livePlatform},
+			#{streamId}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE live_live_channel SET 	
+			name = #{name},
+			business_system_id=#{businessSystem.id},
+			rel_id = #{relId},
+			channel_secret_key = #{channelSecretKey},
+			push_rtmp_url = #{pushRtmpUrl},
+			transcoding_paras = #{transcodingParas},
+			logo = #{logo},
+			rtmp_url = #{rtmpUrl},
+			hls_url = #{hlsUrl},
+			status = #{status},
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks},
+			live_platform = #{livePlatform},
+			stream_id = #{streamId}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		UPDATE live_live_channel SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+</mapper>

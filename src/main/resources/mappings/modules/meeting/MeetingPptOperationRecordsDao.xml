@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.meeting.dao.MeetingPptOperationRecordsDao">
+    
+	<sql id="meetingPptOperationRecordsColumns">
+		a.id AS "id",
+		a.name AS "name",
+		a.ip AS "ip",
+		a.up_operation_time AS "upOperationTime",
+		a.operation_time AS "operationTime",
+		a.page_index AS "pageIndex",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag"
+	</sql>
+	
+	<sql id="meetingPptOperationRecordsJoins">
+	</sql>
+    
+	<select id="get" resultType="MeetingPptOperationRecords">
+		SELECT 
+			<include refid="meetingPptOperationRecordsColumns"/>
+		FROM meeting_ppt_operation_records a
+		<include refid="meetingPptOperationRecordsJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="MeetingPptOperationRecords">
+		SELECT 
+			<include refid="meetingPptOperationRecordsColumns"/>
+		FROM meeting_ppt_operation_records a
+		<include refid="meetingPptOperationRecordsJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="name != null and name != ''">
+				AND a.name LIKE 
+					<if test="dbName == 'oracle'">'%'||#{name}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{name}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{name},'%')</if>
+			</if>
+			<if test="ip != null and ip != ''">
+				AND a.ip = #{ip}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="MeetingPptOperationRecords">
+		SELECT 
+			<include refid="meetingPptOperationRecordsColumns"/>
+		FROM meeting_ppt_operation_records a
+		<include refid="meetingPptOperationRecordsJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO meeting_ppt_operation_records(
+			id,
+			name,
+			ip,
+			up_operation_time,
+			operation_time,
+			page_index,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag
+		) VALUES (
+			#{id},
+			#{name},
+			#{ip},
+			#{upOperationTime},
+			#{operationTime},
+			#{pageIndex},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE meeting_ppt_operation_records SET 	
+			name = #{name},
+			ip = #{ip},
+			up_operation_time = #{upOperationTime},
+			operation_time = #{operationTime},
+			page_index = #{pageIndex},
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		UPDATE meeting_ppt_operation_records SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+</mapper>

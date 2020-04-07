@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.sys.dao.UploadfileDao">
+    
+	<sql id="uploadfileColumns">
+		a.id AS "id",
+		a.filename AS "filename",
+		a.filesize AS "filesize",
+		a.filepath AS "filepath",
+		a.schunk AS "schunk",
+		a.schunks AS "schunks",
+		a.create_by AS "createBy.id",
+		a.upload_by AS "uploadBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		a.projectId AS "project.id",
+		p.name AS "project.name"
+	</sql>
+	
+	<sql id="uploadfileJoins">
+		LEFT JOIN  t_project p  ON p.id = a.projectId
+	</sql>
+    
+	<select id="get" resultType="Uploadfile">
+		SELECT 
+			<include refid="uploadfileColumns"/>
+		FROM sys_uploadfile a
+		<include refid="uploadfileJoins"/>
+		<where>
+			<if test="id != null and id != ''">
+				AND a.id = #{id}
+			</if>
+			<if test="filename != null and filename != ''">
+				AND a.filename = #{filename}
+			</if>
+			<if test="filesize != null and filesize != ''">
+				AND a.filesize = #{filesize}
+			</if>
+			<if test="project != null and project.id !=null">
+				AND a.projectId = #{project.id}
+			</if>
+		</where>
+	</select>
+	
+	<select id="findList" resultType="Uploadfile">
+		SELECT 
+			<include refid="uploadfileColumns"/>
+		FROM sys_uploadfile a
+		<include refid="uploadfileJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="filename != null and filename != ''">
+				AND a.filename LIKE 
+					<if test="dbName == 'oracle'">'%'||#{filename}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{filename}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{filename},'%')</if>
+			</if>
+			<if test="project != null and project.id !=null">
+				AND a.projectId = #{project.id}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="Uploadfile">
+		SELECT 
+			<include refid="uploadfileColumns"/>
+		FROM sys_uploadfile a
+		<include refid="uploadfileJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO sys_uploadfile(
+			id,
+			filename,
+			filesize,
+			schunk,
+			schunks,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag,
+			projectId,
+			upload_by,
+			filepath
+		) VALUES (
+			#{id},
+			#{filename},
+			#{filesize},
+			#{schunk},
+			#{schunks},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag},
+			#{project.id},
+			#{uploadBy.id},
+			#{filepath}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE sys_uploadfile SET 	
+			filename = #{filename},
+			filesize = #{filesize},
+			schunk = #{schunk},
+			schunks = #{schunks},
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks},
+			projectId = #{project.id},
+			upload_by = #{uploadBy.id},
+			filepath  = #{filepath}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		UPDATE sys_uploadfile SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+</mapper>

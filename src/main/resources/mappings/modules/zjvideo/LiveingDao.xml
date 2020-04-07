@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.zjvideo.dao.LiveingDao">
+    
+	<sql id="liveingColumns">
+		a.id AS "id",
+		a.livename AS "livename",
+		a.livenum AS "livenum",
+		a.playurl AS "playurl",
+		a.picurl AS "picurl",
+		a.isonline AS "isonline",
+		a.viewtimes AS "viewtimes",
+		a.addtime AS "addtime",
+		a.edittime AS "edittime",
+		a.slock AS "slock",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag"
+	</sql>
+	
+	<sql id="liveingJoins">
+	</sql>
+    
+	<select id="get" resultType="Liveing">
+		SELECT 
+			<include refid="liveingColumns"/>
+		FROM t_liveing a
+		<include refid="liveingJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="Liveing">
+		SELECT 
+			<include refid="liveingColumns"/>
+		FROM t_liveing a
+		<include refid="liveingJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="livename != null and livename != ''">
+				AND a.livename LIKE 
+					<if test="dbName == 'oracle'">'%'||#{livename}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{livename}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{livename},'%')</if>
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="Liveing">
+		SELECT 
+			<include refid="liveingColumns"/>
+		FROM t_liveing a
+		<include refid="liveingJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO t_liveing(
+			id,
+			livename,
+			livenum,
+			playurl,
+			picurl,
+			isonline,
+			viewtimes,
+			addtime,
+			edittime,
+			slock,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag
+		) VALUES (
+			default,
+			#{livename},
+			#{livenum},
+			#{playurl},
+			#{picurl},
+			#{isonline},
+			#{viewtimes},
+			#{addtime},
+			#{edittime},
+			#{slock},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE t_liveing SET 	
+			livename = #{livename},
+			livenum = #{livenum},
+			playurl = #{playurl},
+			picurl = #{picurl},
+			isonline = #{isonline},
+			viewtimes = #{viewtimes},
+			addtime = #{addtime},
+			edittime = #{edittime},
+			slock = #{slock},
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		UPDATE t_liveing SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	<!-- 查询所有直播信息 -->
+	<select id="getAllLiveing" resultType="Liveing">
+		SELECT 
+			<include refid="liveingColumns"/>
+		FROM t_liveing a
+		<include refid="liveingJoins"/>
+	</select>	
+</mapper>

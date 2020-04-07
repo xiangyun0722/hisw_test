@@ -1,0 +1,775 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.zjvideo.dao.VideosDao">
+    
+    
+	<sql id="videosColumns">
+		a.id AS "id",
+		a.programvolumeid AS "programvolumeid",
+		a.name AS "name",
+		a.source AS "source",
+		a.companyid AS "companyid",
+		a.projectid AS "projectid",
+		a.clazzid AS "clazzid",
+		a.taglist AS "taglist",
+		a.picurl AS "picurl",
+		a.length AS "length",
+		a.videotype AS "videotype",
+		a.path AS "path",
+		a.videocodec AS "videocodec",
+		a.fileszie AS "fileszie",
+		a.avgrate AS "avgrate",
+		a.format AS "format",
+		a.videorate AS "videorate",
+		a.fps AS "fps",
+		a.width AS "width",
+		a.height AS "height",
+		a.audiocodec AS "audiocodec",
+		a.audiorate AS "audiorate",
+		a.samplingrate AS "samplingrate",
+		a.quality AS "quality",
+		a.protocol AS "protocol",
+		a.terminaltype AS "terminaltype",
+		a.resolution AS "resolution",
+		a.aspectratioid AS "aspectratioid",
+		a.status AS "status",
+		a.auditinfo AS "auditinfo",
+		a.addtime AS "addtime",
+		a.update_date AS "updateDate",
+		a.adder AS "adder",
+		a.edittime AS "edittime",
+		a.editer AS "editer",
+		a.generatetaskflag AS "generatetaskflag",
+		a.slock AS "slock",
+		a.create_by AS "createBy.id",
+		a.mp4path AS "mp4path",
+		pro.name AS "project.name",
+		pro.id AS "project.id",
+		u.name AS "createBy.name"
+	</sql>
+	
+	<!-- 视频模板列 -->
+	<sql id="videosTemplateColumns">
+		a.id AS "id",
+		a.programvolumeid AS "programvolumeid",
+		a.name AS "name",
+		a.source AS "source",
+		a.companyid AS "companyid",
+		a.projectid AS "projectid",
+		a.clazzid AS "clazzid",
+		a.taglist AS "taglist",
+		a.picurl AS "picurl",
+		a.length AS "length",
+		a.videotype AS "videotype",
+		a.path AS "path",
+		a.videocodec AS "videocodec",
+		a.fileszie AS "fileszie",
+		a.avgrate AS "avgrate",
+		a.format AS "format",
+		a.videorate AS "videorate",
+		a.fps AS "fps",
+		a.width AS "width",
+		a.height AS "height",
+		a.audiocodec AS "audiocodec",
+		a.audiorate AS "audiorate",
+		a.samplingrate AS "samplingrate",
+		a.quality AS "quality",
+		a.protocol AS "protocol",
+		a.terminaltype AS "terminaltype",
+		a.resolution AS "resolution",
+		a.aspectratioid AS "aspectratioid",
+		a.status AS "status",
+		a.auditinfo AS "auditinfo",
+		a.addtime AS "addtime",
+		a.adder AS "adder",
+		a.edittime AS "edittime",
+		a.editer AS "editer",
+		a.generatetaskflag AS "generatetaskflag",
+		a.slock AS "slock",
+		a.mp4path AS "mp4path",
+		l.templateid AS "templates.id"
+	</sql>	
+	<!-- END -->
+	 
+	<sql id="videosColumnsDisplay">
+		a.id AS "id",
+		a.programvolumeid AS "programvolumeid",
+		a.name AS "name",
+		a.source AS "source",
+		a.companyid AS "companyid",
+		a.projectid AS "projectid",
+		a.clazzid AS "clazzid",
+		a.taglist AS "taglist",
+		a.picurl AS "picurl",
+		a.length AS "length",
+		a.videotype AS "videotype",
+		a.path AS "path",
+		a.videocodec AS "videocodec",
+		a.fileszie AS "fileszie",
+		a.avgrate AS "avgrate",
+		a.format AS "format",
+		a.videorate AS "videorate",
+		a.fps AS "fps",
+		a.width AS "width",
+		a.height AS "height",
+		a.audiocodec AS "audiocodec",
+		a.audiorate AS "audiorate",
+		a.samplingrate AS "samplingrate",
+		a.quality AS "quality",
+		a.protocol AS "protocol",
+		a.terminaltype AS "terminaltype",
+		a.resolution AS "resolution",
+		a.aspectratioid AS "aspectratioid",
+		a.status AS "status",
+		a.auditinfo AS "auditinfo",
+		a.addtime AS "addtime",
+		a.adder AS "adder",
+		a.edittime AS "edittime",
+		a.editer AS "editer",
+		a.generatetaskflag AS "generatetaskflag",
+		a.slock AS "slock",
+		a.mp4path AS "mp4path",
+		l.name AS "programVolume.name",
+		p.name AS "programVolume.program.name",
+		pro.name AS "project.name"
+	</sql>
+	
+	<sql id="videosJoins">
+		LEFT JOIN t_project pro ON pro.id=a.projectid
+		JOIN sys_user u ON u.id = a.create_by
+ 		JOIN sys_office o ON o.id = u.office_id
+	</sql>
+    
+    <!--关联信息查询  -->
+	<sql id="videosJoinsQuery">
+		LEFT JOIN t_project pro ON pro.id=a.projectid
+		LEFT JOIN t_programvolume l ON l.id=a.programvolumeid
+		LEFT JOIN t_program p ON p.id=l.programid
+  		JOIN sys_user u ON u.id = a.create_by		
+ 		JOIN sys_office o ON o.id = u.office_id
+	</sql>
+	
+    <!--关联模板查询  -->
+	<sql id="videosJoinsTemplateQuery">
+		LEFT JOIN t_videotranscodingtask l ON l.videoid=a.id
+  		JOIN sys_user u ON u.id = a.create_by		
+		JOIN sys_office o ON o.id = u.office_id
+	</sql> 	   
+	 
+	<select id="get" resultType="Videos">
+		SELECT 
+			<include refid="videosColumns"/>
+		FROM t_videos a
+		<include refid="videosJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="Videos">
+		SELECT 
+			<include refid="videosColumnsDisplay"/>
+		FROM t_videos a
+		<include refid="videosJoinsQuery"/>
+		<where>
+			<if test="name != null and name != ''">
+				AND a.name LIKE 
+					<if test="dbName == 'oracle'">'%'||#{name}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{name}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{name},'%')</if>
+			</if>
+			<if test="programVolume != null and programVolume.program != null and programVolume.program.name != ''">
+				AND p.name LIKE 
+					<if test="dbName == 'oracle'">'%'||#{programVolume.program.name}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{programVolume.program.name}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{programVolume.program.name},'%')</if>
+			</if>	
+			<!-- 数据范围过滤 -->
+			${sqlMap.dsf}					
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY a.addtime desc,${page.orderBy}
+			</when>
+			<otherwise>
+				order by a.addtime desc
+			</otherwise>
+		</choose>
+	</select>
+	
+	<!-- 查询未被使用的视频-->
+	<sql id="videosJoinsMedia">
+		LEFT JOIN t_project pro ON pro.id=a.projectid
+		JOIN sys_user u ON u.id = a.create_by		
+ 		JOIN sys_office o ON o.id = u.office_id
+ 		JOIN t_media m ON m.videosid = a.id
+	</sql>
+	<select id="queryByProgramVolumeId" resultType="Videos">
+		SELECT 
+			<include refid="videosColumns"/>
+		FROM t_videos a
+		<include refid="videosJoinsMedia"/>
+		<where>
+			a.programvolumeid is null 
+			AND a.generatetaskflag = 1
+			AND m.format = 4
+			<if test="name != null and name != ''">
+				AND a.name LIKE 
+					<if test="dbName == 'oracle'">'%'||#{name}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{name}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{name},'%')</if>
+			</if>
+		</where>
+	</select>	
+	
+	<select id="findByProgramVolumeId" resultType="Videos">
+		SELECT 
+			<include refid="videosColumns"/>
+		FROM t_videos a
+		<include refid="videosJoins"/>
+		where a.programvolumeid = #{programvolumeId}
+	</select>	
+	
+	<select id="queryOwnTemplatesList" resultType="Videos">
+		SELECT 
+			<include refid="videosTemplateColumns"/>
+		FROM t_videos a
+		<include refid="videosJoinsTemplateQuery"/>
+		where a.id = #{id}
+		<!-- 数据范围过滤 -->
+		${sqlMap.dsf}		
+	</select>		
+	<!-- END -->
+	
+	<select id="findAllList" resultType="Videos">
+		SELECT 
+			<include refid="videosColumns"/>
+		FROM t_videos a
+		<include refid="videosJoins"/>
+		<where>
+			
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO t_videos(
+			id,
+			programvolumeid,
+			name,
+			source,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,			
+			clazzid,
+			projectid,
+			companyid,
+			taglist,
+			picurl,
+			length,
+			videotype,
+			path,
+			videocodec,
+			fileszie,
+			avgrate,
+			format,
+			videorate,
+			fps,
+			width,
+			height,
+			audiocodec,
+			audiorate,
+			samplingrate,
+			quality,
+			protocol,
+			terminaltype,
+			resolution,
+			aspectratioid,
+			status,
+			auditinfo,
+			addtime,
+			adder,
+			edittime,
+			editer,
+			generatetaskflag,
+			slock,
+			mp4path,
+			upload_by
+		) VALUES (
+			default,
+			#{programvolumeid},
+			#{name},
+			#{source},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},			
+			#{clazzid},
+			#{projectid},
+			#{companyid},
+			#{taglist},
+			#{picurl},
+			#{length},
+			#{videotype},
+			#{path},
+			#{videocodec},
+			#{fileszie},
+			#{avgrate},
+			#{format},
+			#{videorate},
+			#{fps},
+			#{width},
+			#{height},
+			#{audiocodec},
+			#{audiorate},
+			#{samplingrate},
+			#{quality},
+			#{protocol},
+			#{terminaltype},
+			#{resolution},
+			#{aspectratioid},
+			#{status},
+			#{auditinfo},
+			#{addtime},
+			#{adder},
+			#{edittime},
+			#{editer},
+			#{generatetaskflag},
+			#{slock},
+			#{mp4path},
+			#{uploadBy.id}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE t_videos SET 	
+			programvolumeid = #{programvolumeid},
+			name = #{name},
+			source = #{source},
+			clazzid = #{clazzid},
+			projectid = #{projectid},
+			companyid = #{companyid},
+			taglist = #{taglist},
+			create_by = #{createBy.id},
+			update_date = #{updateDate},
+			picurl = #{picurl},
+			length = #{length},
+			videotype = #{videotype},
+			path = #{path},
+			videocodec = #{videocodec},
+			fileszie = #{fileszie},
+			avgrate = #{avgrate},
+			format = #{format},
+			videorate = #{videorate},
+			fps = #{fps},
+			width = #{width},
+			height = #{height},
+			audiocodec = #{audiocodec},
+			audiorate = #{audiorate},
+			samplingrate = #{samplingrate},
+			quality = #{quality},
+			protocol = #{protocol},
+			terminaltype = #{terminaltype},
+			resolution = #{resolution},
+			aspectratioid = #{aspectratioid},
+			status = #{status},
+			auditinfo = #{auditinfo},
+			addtime = #{addtime},
+			adder = #{adder},
+			edittime = #{edittime},
+			editer = #{editer},
+			generatetaskflag = #{generatetaskflag},
+			slock = #{slock},
+			mp4path = #{mp4path},
+			upload_by=#{uploadBy.id}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		DELETE FROM t_videos
+		WHERE id = #{id}
+	</update>
+	
+	<!-- 数据库删除视频信息 -->	
+	<delete id="deleteVideo">
+		DELETE 
+			FROM t_videos 
+		WHERE id = #{id}
+	</delete>	
+	
+	<!-- 删除视频模板关联表数据 -->
+	<delete id="deleteVideosTemplates">
+		DELETE FROM t_videotranscodingtask WHERE videoid = #{id}
+	</delete>
+	
+	<!-- 删除码流表数据 -->
+	<delete id="batchDeleteTranscodeInfo">
+		DELETE FROM t_media WHERE videosid = #{id}
+	</delete>	
+	
+	<!-- 插入转码任务 -->
+	<insert id="insertVideoTranscodingTask">
+		INSERT INTO t_videotranscodingtask(videoid, templateid,convertstatus,projectid,companyid,create_by)
+		<foreach collection="templatesList" item="templates" separator=" union all ">
+			SELECT #{id}, #{templates.id}, #{templates.convertstatus}, #{projectid}, #{companyid},#{createBy.id} FROM dual
+		</foreach>
+	</insert>		
+	
+	<!-- 插入推送cdn任务 -->
+	<insert id="insertVideoPushcdnTask">
+		INSERT INTO t_videopushcdntask(videoid, templateid,pushstatus,projectid,companyid,create_by)
+		<foreach collection="templatesList" item="templates" separator=" union all ">
+			SELECT #{id}, #{templates.id}, #{templates.convertstatus}, #{projectid}, #{companyid},#{createBy.id} FROM dual
+		</foreach>
+	</insert>		
+	
+	<!-- 查询未处理媒资 -->
+	<select id="queryQueueVideo" resultType="Videos">
+		SELECT 
+			<include refid="videosColumns"/>
+		FROM t_videos a
+		<include refid="videosJoins"/>
+		<where>
+			a.generatetaskflag=0
+			<if test="name != null and name != ''">
+				AND a.name LIKE 
+					<if test="dbName == 'oracle'">'%'||#{name}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{name}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{name},'%')</if>
+			</if>
+			<!-- 数据范围过滤 -->
+			${sqlMap.dsf}			
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY a.update_date desc,${page.orderBy}
+			</when>
+			<otherwise>
+				order by a.update_date desc
+			</otherwise>
+		</choose>
+	</select>	
+	
+	<!-- 查询正式媒资 -->
+	<sql id="videosMediaResultColumns">
+		distinct(a.id) AS "id",
+		a.programvolumeid AS "programvolumeid",
+		a.name AS "name",
+		a.source AS "source",
+		a.clazzid AS "clazzid",
+		a.projectid AS "projectid",
+		a.companyid AS "companyid",
+		a.taglist AS "taglist",
+		/*a.length AS "length",*/
+		a.videotype AS "videotype",
+		/*a.path AS "path",*/
+		a.videocodec AS "videocodec",
+		a.fileszie AS "fileszie",
+		a.avgrate AS "avgrate",
+		a.format AS "format",
+		a.videorate AS "videorate",
+		a.fps AS "fps",
+		a.width AS "width",
+		a.height AS "height",
+		a.audiocodec AS "audiocodec",
+		a.audiorate AS "audiorate",
+		a.samplingrate AS "samplingrate",
+		a.quality AS "quality",
+		a.protocol AS "protocol",
+		a.terminaltype AS "terminaltype",
+		a.resolution AS "resolution",
+		a.aspectratioid AS "aspectratioid",
+		a.status AS "status",
+		a.auditinfo AS "auditinfo",
+		a.addtime AS "addtime",
+		a.adder AS "adder",
+		a.edittime AS "edittime",
+		a.editer AS "editer",
+		a.generatetaskflag AS "generatetaskflag",
+		a.slock AS "slock",
+		a.mp4path AS "mp4path",
+		pro.name AS "project.name",
+		m.picurl AS "picurl",
+		m.path as "path",
+		o.name as "companyName",
+		m.length as "length"
+	</sql>
+	<sql id="videostranscodingtaskQuery">
+	    JOIN t_project pro ON pro.id=a.projectid
+		JOIN (
+			/**转码后的视频取最近修改的模板*/
+			SELECT a.videosid,a.path,a.picurl,a.length
+			FROM t_media a
+		    JOIN t_videotranscodingtask vt ON a.videotranscodingtaskid = vt.id
+		    JOIN t_template t ON vt.templateid = t.id
+			ORDER BY t.update_date DESC limit 5000000
+		) m ON m.videosid=a.id
+  		JOIN sys_user u ON u.id = a.create_by		
+ 		JOIN sys_office o ON o.id = pro.companyid
+	</sql>
+	
+	<sql id="videoQueryByCompany">
+	    JOIN t_project pro ON pro.id=a.projectid
+		JOIN (
+			/**转码后的视频取最近修改的模板*/
+			SELECT a.videosid,a.path,a.picurl,a.length
+			FROM t_media a
+		    JOIN t_videotranscodingtask vt ON a.videotranscodingtaskid = vt.id
+		    JOIN t_template t ON vt.templateid = t.id
+			ORDER BY t.update_date DESC limit 5000000
+		) m ON m.videosid=a.id
+		JOIN sys_office o ON o.id = a.companyid
+	</sql>
+	
+	<select id="queryVideoMedia" resultType="Videos">
+		SELECT 
+			<include refid="videosMediaResultColumns"/>
+		FROM t_videos a
+		<include refid="videostranscodingtaskQuery"/>
+		<where>
+			<if test="name != null and name != ''">
+				AND a.name LIKE 
+					<if test="dbName == 'oracle'">'%'||#{name}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{name}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{name},'%')</if>
+			</if>
+		<!-- 数据范围过滤 -->
+		${sqlMap.dsf}					
+		</where>
+		group by a.id
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY a.addtime desc,${page.orderBy}
+			</when>
+			<otherwise>
+				order by a.addtime desc
+			</otherwise>
+		</choose>
+	</select>	
+	
+	
+	
+	<select id="queryVideoMediaByCompany" resultType="Videos">
+		SELECT 
+			<include refid="videosMediaResultColumns"/>
+		FROM t_videos a
+		<include refid="videoQueryByCompany"/>
+		<where>
+			<if test="name != null and name != ''">
+				AND a.name LIKE 
+					<if test="dbName == 'oracle'">'%'||#{name}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{name}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{name},'%')</if>
+			</if>
+			<if test="companyid != null and companyid != ''">
+				       a.companyid=#{companyid}	
+			</if>			
+		</where>
+		group by a.id
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY a.addtime desc,${page.orderBy}
+			</when>
+			<otherwise>
+				order by a.addtime desc
+			</otherwise>
+		</choose>
+	</select>	
+	
+	
+	<!-- 根据公司Id查询视频列表 -->
+	<sql id="videosQueryByCompanyId">
+	    JOIN t_project pro ON pro.id=a.projectid
+		JOIN t_media m ON m.videosid=a.id
+		JOIN sys_office o ON o.id = a.companyid
+	</sql>
+	<select id="queryVideosList" resultType="Videos">
+		SELECT 
+			<include refid="videosMediaResultColumns"/>
+		FROM t_videos a
+		<include refid="videosQueryByCompanyId"/>
+		<where>
+			<if test="companyid != null and companyid != ''">
+				a.companyid=#{companyid}
+			</if>	
+			<if test="companyCode != null and companyCode != ''">
+				o.code=#{companyCode}
+			</if>			
+		</where>
+		group by a.id
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY a.addtime desc,${page.orderBy}
+			</when>
+			<otherwise>
+				order by a.addtime desc
+			</otherwise>
+		</choose>
+	</select>
+		
+	<!-- 查询正式媒资下视频列表 -->
+	<sql id="mediaColumns">
+		a.id AS "id",
+		a.videosid AS "videosid",
+		a.name AS "name",
+		a.volumne AS "volumne",
+		a.source AS "source",
+		a.clazzid AS "clazzid",
+		a.projectid AS "projectid",
+		a.companyid AS "companyid",
+		a.taglist AS "taglist",
+		a.picurl AS "picurl",
+		a.length AS "length",
+		a.videotype AS "videotype",
+		a.path AS "path",
+		a.videocodec AS "videocodec",
+		a.fileszie AS "fileszie",
+		a.avgrate AS "avgrate",
+		a.type AS "type",
+		a.format AS "format",
+		a.videorate AS "videorate",
+		a.fps AS "fps",
+		a.width AS "width",
+		a.height AS "height",
+		a.audiocodec AS "audiocodec",
+		a.audiorate AS "audiorate",
+		a.samplingrate AS "samplingrate",
+		a.quality AS "quality",
+		a.protocol AS "protocol",
+		a.terminaltype AS "terminaltype",
+		a.resolution AS "resolution",
+		a.aspectratioid AS "aspectratioid",
+		a.status AS "status",
+		a.auditinfo AS "auditinfo",
+		a.addtime AS "addtime",
+		a.adder AS "adder",
+		a.edittime AS "edittime",
+		a.editer AS "editer",
+		a.convertstatus AS "convertstatus",
+		a.convertmsg AS "convertmsg",
+		a.convertusetime AS "convertusetime",
+		a.convertstarttime AS "convertstarttime",
+		a.slock AS "slock",
+		a.is_cache AS "iscache",
+		a.cache_flag AS "cacheflag",
+		a.operationtime  AS "operationtime",
+		a.plantime AS "plantime",
+		a.executetime AS "executetime",
+		a.hour AS "hour",
+		a.endtime AS "endtime",		
+		a.mp4path AS "mp4path",
+		t.name as "templateName"
+	</sql>	
+	<sql id="videosMediaJoinsQuery">
+		JOIN t_videos v ON a.videosid=v.id
+  		JOIN sys_user u ON u.id = a.create_by		
+ 		JOIN sys_office o ON o.id = u.office_id
+ 		LEFT JOIN t_videotranscodingtask vt ON a.videotranscodingtaskid = vt.id
+		LEFT JOIN t_template t ON vt.templateid = t.id
+	</sql>
+		
+	<select id="queryMediaVideos" resultType="Media">
+		SELECT 
+			<include refid="mediaColumns"/>
+		FROM t_media a
+		<include refid="videosMediaJoinsQuery"/>
+		<where>
+			v.id=#{videosid}
+			<if test="name != null and name != ''">
+				AND a.name LIKE 
+					<if test="dbName == 'oracle'">'%'||#{name}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{name}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{name},'%')</if>
+			</if>
+			<if test="format != null and format != '' and format != 3">
+				AND a.format = #{format}
+			</if>
+			<if test="type != null and type != '' and type != 'd'.toString()">
+				AND a.type = #{type} 
+			</if>	
+		 	<!-- 数据范围过滤 -->
+		  	${sqlMap.dsf}					
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY a.addtime desc,${page.orderBy}
+			</when>
+			<otherwise>
+				order by a.addtime desc
+			</otherwise>
+		</choose>
+	</select>	
+	
+	<!-- 查询转码任务列表信息 -->
+	<sql id="videotranscodingtaskColumns">
+		a.id AS "id",
+		a.templateid AS "templateid",
+		a.videoid AS "videoid",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.projectid AS "projectid",
+		a.companyid AS "companyid",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		a.convertstatus AS "convertstatus",
+		a.convertmsg AS "convertmsg",
+		a.convertusetime AS "convertusetime",
+		a.convertStartTime AS "convertStartTime",
+		a.convertEndTime AS "convertEndTime",
+		v.name AS "video.name",
+		v.source AS "video.source",
+		v.addtime AS "video.addtime",
+		m.name AS "template.name",
+		m.format AS "template.format",
+		m.type AS "template.type",
+		u.name AS "createBy.name"		
+	</sql>
+	
+	<sql id="videotranscodingtaskJoins">
+		JOIN t_videos v ON a.videoid=v.id
+		JOIN t_template m ON a.templateid = m.id
+  		JOIN sys_user u ON u.id = a.create_by		
+ 		JOIN sys_office o ON o.id = u.office_id
+	</sql>
+    
+	<select id="queryVideotranscodingtask" resultType="videotranscodingtask">
+		SELECT 
+			<include refid="videotranscodingtaskColumns"/>
+		FROM t_videotranscodingtask a
+		<include refid="videotranscodingtaskJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="convertstatus != null and convertstatus != 3">
+				AND a.convertstatus = #{convertstatus}
+			</if>
+			<if test="template != null and template.format != null and template.format != '' and template.format != 3">
+				AND m.format = #{template.format}
+			</if>
+			<if test="template != null and template.type != null and template.type != '' and template.type != 'd'.toString()">
+				AND m.type LIKE 
+					<if test="dbName == 'oracle'">'%'||#{template.type}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{template.type}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{template.type},'%')</if>				
+			</if>
+			<!-- 数据范围过滤 -->
+			${sqlMap.dsf}						
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY v.addtime desc,${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY v.addtime desc
+			</otherwise>
+		</choose>
+	</select>		
+</mapper>

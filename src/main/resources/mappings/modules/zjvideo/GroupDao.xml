@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.zjvideo.dao.GroupDao">
+    
+	<sql id="groupColumns">
+		a.id AS "id",
+		a.groupname AS "groupname",
+		a.adgroupname AS "adgroupname",
+		a.usercount AS "usercount",
+		a.addtime AS "addtime",
+		a.edittime AS "edittime",
+		a.slock AS "slock",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag"
+	</sql>
+	
+	<sql id="groupJoins">
+	</sql>
+	
+	<!-- 用户组信息列表 -->
+	<select id="queryGroupList" resultType="Group">
+		SELECT 
+			<include refid="groupColumns"/>
+		FROM t_group a
+			<include refid="groupJoins"/>
+	</select>
+	
+	<!-- 用户组信息列表 -->
+	<select id="findByGroupName" resultType="Group">
+		SELECT 
+			<include refid="groupColumns"/>
+		FROM t_group a
+			<include refid="groupJoins"/>
+		WHERE a.groupname = #{groupname}
+	</select>
+		
+	    
+	<select id="get" resultType="Group">
+		SELECT 
+			<include refid="groupColumns"/>
+		FROM t_group a
+		<include refid="groupJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="Group">
+		SELECT 
+			<include refid="groupColumns"/>
+		FROM t_group a
+		<include refid="groupJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="groupname != null and groupname != ''">
+				AND a.groupname = #{groupname}
+			</if>
+			<if test="adgroupname != null and adgroupname != ''">
+				AND a.adgroupname = #{adgroupname}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="Group">
+		SELECT 
+			<include refid="groupColumns"/>
+		FROM t_group a
+		<include refid="groupJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO t_group(
+			id,
+			groupname,
+			adgroupname,
+			usercount,
+			addtime,
+			edittime,
+			slock,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag
+		) VALUES (
+			default,
+			#{groupname},
+			#{adgroupname},
+			#{usercount},
+			#{addtime},
+			#{edittime},
+			#{slock},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE t_group SET 	
+			groupname = #{groupname},
+			adgroupname = #{adgroupname},
+			usercount = #{usercount},
+			addtime = #{addtime},
+			edittime = #{edittime},
+			slock = #{slock},
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		UPDATE t_group SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+</mapper>

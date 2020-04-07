@@ -1,0 +1,233 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.zjvideo.dao.TeacherDao">
+    
+	<sql id="teacherColumns">
+		a.id AS "id",
+		a.teacherno AS "teacherno",
+		a.password AS "password",
+		a.realname AS "realname",
+		a.telphone AS "telphone",
+		a.mobile AS "mobile",
+		a.webchat AS "webchat",
+		a.college AS "college",
+		a.fasten AS "fasten",
+		a.detail AS "detail",
+		a.picurl AS "picurl",
+		a.logintimes AS "logintimes",
+		a.lastlogintime AS "lastlogintime",
+		a.lastloginip AS "lastloginip",
+		a.coursenum AS "coursenum",
+		a.recomment AS "recomment",
+		a.addtime AS "addtime",
+		a.edittime AS "edittime",
+		a.slock AS "slock",
+		a.status AS "status",
+		a.adflag AS "adflag",
+		a.title AS "title",
+		a.profession AS "profession",
+		a.signature AS "signature",
+		a.nickname AS "nickname",
+		a.sex AS "sex",
+		a.district AS "district",
+		a.mailbox AS "mailbox",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag"
+	</sql>
+	
+	<sql id="teacherJoins">
+	</sql>
+    
+    <!--  查询主讲人信息列表-->
+	<select id="queryTeacherList" resultType="Teacher">
+		SELECT 
+			<include refid="teacherColumns"/>
+		FROM t_teacher a
+		<include refid="teacherJoins"/>
+	</select>    
+    
+	<select id="get" resultType="Teacher">
+		SELECT 
+			<include refid="teacherColumns"/>
+		FROM t_teacher a
+		<include refid="teacherJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="Teacher">
+		SELECT 
+			<include refid="teacherColumns"/>
+		FROM t_teacher a
+		<include refid="teacherJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="teacherno != null and teacherno != ''">
+				AND a.teacherno LIKE 
+					<if test="dbName == 'oracle'">'%'||#{teacherno}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{teacherno}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{teacherno},'%')</if>
+			</if>
+			<if test="realname != null and realname != ''">
+				AND a.realname LIKE 
+					<if test="dbName == 'oracle'">'%'||#{realname}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{realname}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{realname},'%')</if>
+			</if>
+			<if test="recomment != null and recomment != '' and recomment != 3">
+				AND a.recomment = #{recomment}
+			</if>
+			<if test="status != null and status != '' and status != 3">
+				AND a.status = #{status}
+			</if>
+			<if test="adflag != null and adflag != '' and adflag != 2">
+				AND a.adflag = #{adflag}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="Teacher">
+		SELECT 
+			<include refid="teacherColumns"/>
+		FROM t_teacher a
+		<include refid="teacherJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO t_teacher(
+			id,
+			teacherno,
+			password,
+			realname,
+			telphone,
+			mobile,
+			webchat,
+			college,
+			fasten,
+			detail,
+			picurl,
+			logintimes,
+			lastlogintime,
+			lastloginip,
+			coursenum,
+			recomment,
+			addtime,
+			edittime,
+			slock,
+			status,
+			adflag,
+			title,
+			profession,
+			signature,
+			nickname,
+			sex,
+			district,
+			mailbox,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag
+		) VALUES (
+			default,
+			#{teacherno},
+			#{password},
+			#{realname},
+			#{telphone},
+			#{mobile},
+			#{webchat},
+			#{college},
+			#{fasten},
+			#{detail},
+			#{picurl},
+			#{logintimes},
+			#{lastlogintime},
+			#{lastloginip},
+			#{coursenum},
+			#{recomment},
+			#{addtime},
+			#{edittime},
+			#{slock},
+			#{status},
+			#{adflag},
+			#{title},
+			#{profession},
+			#{signature},
+			#{nickname},
+			#{sex},
+			#{district},
+			#{mailbox},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE t_teacher SET 	
+			teacherno = #{teacherno},
+			password = #{password},
+			realname = #{realname},
+			telphone = #{telphone},
+			mobile = #{mobile},
+			webchat = #{webchat},
+			college = #{college},
+			fasten = #{fasten},
+			detail = #{detail},
+			picurl = #{picurl},
+			logintimes = #{logintimes},
+			lastlogintime = #{lastlogintime},
+			lastloginip = #{lastloginip},
+			coursenum = #{coursenum},
+			recomment = #{recomment},
+			addtime = #{addtime},
+			edittime = #{edittime},
+			slock = #{slock},
+			status = #{status},
+			adflag = #{adflag},
+			title = #{title},
+			profession = #{profession},
+			signature = #{signature},
+			nickname = #{nickname},
+			sex = #{sex},
+			district = #{district},
+			mailbox = #{mailbox},
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		UPDATE t_teacher SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+</mapper>

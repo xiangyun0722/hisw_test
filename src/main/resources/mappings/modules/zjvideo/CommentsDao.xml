@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.zjvideo.dao.CommentsDao">
+    
+	<sql id="commentsColumns">
+		a.id AS "id",
+		a.addtime AS "addtime",
+		a.content AS "content",
+		a.nickname AS "nickname",
+		a.parentid AS "parentid",
+		a.picurl AS "picurl",
+		a.state AS "state",
+		a.userid AS "userid",
+		a.topicid AS "topicid",
+		a.type AS "type",
+		a.edittime AS "edittime",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		s.realname AS "student.realname",
+		s.picurl AS "student.picurl",
+		s.nickname AS "student.nickname",
+		h.realname AS "teacher.realname",
+		h.picurl AS "teacher.picurl",
+		h.nickname AS "teacher.nickname",
+		t.name AS "topic.name"
+	</sql>
+	
+	<sql id="commentsJoins">
+	</sql>
+	
+	<!-- 关联信息查询 -->
+	<sql id="commentsJoinsQuery">
+		LEFT JOIN t_topic t ON t.id=a.topicid
+		LEFT JOIN t_student s ON s.id=a.userid
+		LEFT JOIN t_teacher h ON h.id=a.userid
+	</sql>
+    
+	<select id="findList" resultType="Comments">
+		SELECT 
+			<include refid="commentsColumns"/>
+		FROM t_comment a
+		<include refid="commentsJoinsQuery"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="topic != null and topic.name != null and topic.name != ''">
+				AND t.name LIKE 
+					<if test="dbName == 'oracle'">'%'||#{topic.name}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{topic.name}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{topic.name},'%')</if>				
+			</if>
+			<if test="content != null and content != ''">
+				AND a.content LIKE 
+					<if test="dbName == 'oracle'">'%'||#{content}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{content}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{content},'%')</if>								
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="get" resultType="Comments">
+		SELECT 
+			<include refid="commentsColumns"/>
+		FROM t_comment a
+		<include refid="commentsJoins"/>
+		WHERE a.id = #{id}
+	</select>
+		
+	<select id="findAllList" resultType="Comments">
+		SELECT 
+			<include refid="commentsColumns"/>
+		FROM t_comment a
+		<include refid="commentsJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO t_comment(
+			id,
+			addtime,
+			content,
+			nickname,
+			parentid,
+			picurl,
+			state,
+			userid,
+			topicid,
+			type,
+			edittime,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag
+		) VALUES (
+			default,
+			#{addtime},
+			#{content},
+			#{nickname},
+			#{parentid},
+			#{picurl},
+			#{state},
+			#{userid},
+			#{topicid},
+			#{type},
+			#{edittime},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE t_comment SET 	
+			addtime = #{addtime},
+			content = #{content},
+			nickname = #{nickname},
+			parentid = #{parentid},
+			picurl = #{picurl},
+			state = #{state},
+			userid = #{userid},
+			topicid = #{topicid},
+			type = #{type},
+			edittime = #{edittime},
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		UPDATE t_comment SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	<!-- 数据库删除敏感评论内容 -->	
+	<delete id="deleteComment">
+		DELETE 
+			FROM t_comment 
+		WHERE id = #{id}
+	</delete>	
+	
+</mapper>

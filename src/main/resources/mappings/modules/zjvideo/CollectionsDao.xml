@@ -1,0 +1,413 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.zjvideo.dao.CollectionsDao">
+    
+	<sql id="collectionColumns">
+		a.id AS "id",
+		a.studentid AS "studentid",
+		a.programid AS "programid",
+		a.addtime AS "addtime",
+		a.edittime AS "edittime",
+		a.slock AS "slock",
+		a.type AS "type",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		s.realname AS "student.realname",
+		s.studentno AS "student.studentno",
+		h.realname AS "teacher.realname",
+		h.teacherno AS "teacher.teacherno",
+		t.name AS "program.name"
+	</sql>
+	
+	<sql id="staticsCollectionColumns">
+		count(a.id) AS "count",
+		a.programid AS "programid",
+		t.name AS "program.name",
+		t.actor AS "program.actor",
+		t.teacherno AS "program.teacherno",
+		a.addtime AS "addtime"
+	</sql>	
+	
+	<!-- 学生收藏统计 -->
+	<sql id="staticsStudentCollectionColumns">
+		count(a.id) AS "count",
+		a.programid AS "programid",
+		s.realname AS "student.realname",
+		s.studentno AS "student.studentno",
+		a.addtime AS "addtime",
+		a.type AS "type",
+		a.studentid AS "studentid"
+	</sql>
+	
+	<!-- 老师收藏统计 -->
+	<sql id="staticsTeacherCollectionColumns">
+		count(a.id) AS "count",
+		a.programid AS "programid",
+		t.name AS "program.name",
+		t.actor AS "program.actor",
+		t.teacherno AS "program.teacherno",
+		a.addtime AS "addtime",
+		a.type AS "type"
+	</sql>		
+	
+	<sql id="collectionJoins">
+	</sql>
+    
+	<!-- 关联信息查询 -->
+	<sql id="collectionsJoinsQuery">
+		LEFT JOIN t_program t ON t.id=a.programid
+		LEFT JOIN t_student s ON s.id=a.studentid
+		LEFT JOIN t_teacher h ON h.id=a.studentid
+	</sql>
+	
+	<!-- 课程收藏统计 -->
+	<sql id="staticCollectionsJoinsQuery">
+		LEFT JOIN t_program t ON t.id=a.programid
+	</sql>	
+	   
+	<!-- 学生收藏统计 -->	    
+	<sql id="staticsStudentCollectionJoinsQuery">
+		LEFT JOIN t_student s ON s.id=a.studentid
+	</sql>
+	
+	<!-- 老师收藏统计 -->
+	<sql id="staticsTeacherCollectionJoinsQuery">
+		LEFT JOIN t_program t ON t.id=a.programid
+	</sql>
+		    
+	<select id="get" resultType="Collections">
+		SELECT 
+			<include refid="collectionColumns"/>
+		FROM t_collection a
+		<include refid="collectionJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="Collections">
+		SELECT 
+			<include refid="collectionColumns"/>
+		FROM t_collection a
+		<include refid="collectionsJoinsQuery"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="type != null and type != '' and type != 3">
+				AND a.type = #{type}
+			</if>
+			<if test="program != null and program.name != null and program.name != ''">
+				AND t.name LIKE 
+					<if test="dbName == 'oracle'">'%'||#{program.name}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{program.name}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{program.name},'%')</if>				
+			</if>
+			<if test="student != null and student.realname != null and student.realname != ''">
+				AND s.realname LIKE 
+					<if test="dbName == 'oracle'">'%'||#{student.realname}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{student.realname}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{student.realname},'%')</if>	
+				OR h.realname LIKE	
+					<if test="dbName == 'oracle'">'%'||#{student.realname}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{student.realname}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{student.realname},'%')</if>							
+			</if>
+			<if test="student != null and student.studentno != null and student.studentno != ''">
+				AND s.studentno LIKE 
+					<if test="dbName == 'oracle'">'%'||#{student.studentno}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{student.studentno}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{student.studentno},'%')</if>				
+				OR h.teacherno LIKE
+					<if test="dbName == 'oracle'">'%'||#{student.studentno}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{student.studentno}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{student.studentno},'%')</if>	
+			</if>			
+			<choose>
+				<when test="addtime != null and addtime != '' and edittime != null and edittime != ''">
+					AND (a.addtime between #{addtime} AND #{edittime})
+				</when>
+				<when test="addtime != null and addtime != '' ">
+					AND a.addtime <![CDATA[ < ]]> 0
+				</when>				
+				<otherwise>
+				</otherwise>
+			</choose>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<!-- 课程收藏统计 -->
+	<select id="findStatisticsCollectionList" resultType="Collections">
+		SELECT 
+			<include refid="staticsCollectionColumns"/>
+		FROM t_collection a
+		<include refid="staticCollectionsJoinsQuery"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+<!-- 			<if test="type != null and type != '' and type != 3">
+				AND a.type = #{type}
+			</if> -->
+			<if test="program != null and program.name != null and program.name != ''">
+				AND t.name LIKE 
+					<if test="dbName == 'oracle'">'%'||#{program.name}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{program.name}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{program.name},'%')</if>				
+			</if>
+			<if test="program != null and program.teacherno != null and program.teacherno != ''">
+				AND t.teacherno LIKE 
+					<if test="dbName == 'oracle'">'%'||#{program.teacherno}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{program.teacherno}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{program.teacherno},'%')</if>				
+			</if>			
+			<!-- <if test="student != null and student.realname != null and student.realname != ''">
+				AND s.realname LIKE 
+					<if test="dbName == 'oracle'">'%'||#{student.realname}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{student.realname}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{student.realname},'%')</if>	
+				OR h.realname LIKE	
+					<if test="dbName == 'oracle'">'%'||#{student.realname}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{student.realname}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{student.realname},'%')</if>							
+			</if>
+			<if test="student != null and student.studentno != null and student.studentno != ''">
+				AND s.studentno LIKE 
+					<if test="dbName == 'oracle'">'%'||#{student.studentno}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{student.studentno}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{student.studentno},'%')</if>				
+				OR h.teacherno LIKE
+					<if test="dbName == 'oracle'">'%'||#{student.studentno}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{student.studentno}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{student.studentno},'%')</if>	
+			</if>	 -->		
+			<choose>
+				<when test="addtime != null and addtime != '' and edittime != null and edittime != ''">
+					AND (a.addtime between #{addtime} AND #{edittime})
+				</when>
+				<when test="addtime != null and addtime != '' ">
+					AND a.addtime <![CDATA[ < ]]> 0
+				</when>				
+				<otherwise>
+				</otherwise>
+			</choose>
+		</where>
+			group by a.programid
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+		
+	</select>
+	
+	<!-- 学生收藏统计 -->
+	<select id="findStatisticsStudentCollectionsList" resultType="Collections">
+		SELECT 
+			<include refid="staticsStudentCollectionColumns"/>
+		FROM t_collection a
+			<include refid="staticsStudentCollectionJoinsQuery"/>
+		<where>
+			a.type = 1
+	<!-- 		<if test="type != null and type != '' and type != 3">
+				AND a.type = #{type}
+			</if> -->
+			<if test="student != null and student.realname != null and student.realname != ''">
+				AND s.name LIKE 
+					<if test="dbName == 'oracle'">'%'||#{student.realname}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{student.realname}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{student.realname},'%')</if>				
+			</if>
+			<if test="student != null and student.studentno != null and student.studentno != ''">
+				AND s.studentno LIKE 
+					<if test="dbName == 'oracle'">'%'||#{student.studentno}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{student.studentno}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{student.studentno},'%')</if>				
+			</if>			
+			<!-- <if test="student != null and student.realname != null and student.realname != ''">
+				AND s.realname LIKE 
+					<if test="dbName == 'oracle'">'%'||#{student.realname}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{student.realname}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{student.realname},'%')</if>	
+				OR h.realname LIKE	
+					<if test="dbName == 'oracle'">'%'||#{student.realname}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{student.realname}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{student.realname},'%')</if>							
+			</if>
+			<if test="student != null and student.studentno != null and student.studentno != ''">
+				AND s.studentno LIKE 
+					<if test="dbName == 'oracle'">'%'||#{student.studentno}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{student.studentno}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{student.studentno},'%')</if>				
+				OR h.teacherno LIKE
+					<if test="dbName == 'oracle'">'%'||#{student.studentno}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{student.studentno}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{student.studentno},'%')</if>	
+			</if>	 -->		
+			<choose>
+				<when test="addtime != null and addtime != '' and edittime != null and edittime != ''">
+					AND (a.addtime between #{addtime} AND #{edittime})
+				</when>
+				<when test="addtime != null and addtime != '' ">
+					AND a.addtime <![CDATA[ < ]]> 0
+				</when>				
+				<otherwise>
+				</otherwise>
+			</choose>
+		</where>
+			group by a.studentid
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<!-- 老师收藏统计 -->
+	<select id="findStatisticsTeacherCollectionsList" resultType="Collections">
+		SELECT 
+			<include refid="staticsTeacherCollectionColumns"/>
+		FROM t_collection a
+		<include refid="staticsTeacherCollectionJoinsQuery"/>
+		<where>
+			a.type = 2
+<!-- 			<if test="type != null and type != '' and type != 3">
+				AND a.type = #{type}
+			</if> -->
+			<if test="program != null and program.name != null and program.name != ''">
+				AND t.name LIKE 
+					<if test="dbName == 'oracle'">'%'||#{program.name}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{program.name}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{program.name},'%')</if>				
+			</if>
+			<if test="program != null and program.teacherno != null and program.teacherno != ''">
+				AND t.teacherno LIKE 
+					<if test="dbName == 'oracle'">'%'||#{program.teacherno}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{program.teacherno}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{program.teacherno},'%')</if>				
+			</if>			
+			<!-- <if test="student != null and student.realname != null and student.realname != ''">
+				AND s.realname LIKE 
+					<if test="dbName == 'oracle'">'%'||#{student.realname}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{student.realname}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{student.realname},'%')</if>	
+				OR h.realname LIKE	
+					<if test="dbName == 'oracle'">'%'||#{student.realname}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{student.realname}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{student.realname},'%')</if>							
+			</if>
+			<if test="student != null and student.studentno != null and student.studentno != ''">
+				AND s.studentno LIKE 
+					<if test="dbName == 'oracle'">'%'||#{student.studentno}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{student.studentno}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{student.studentno},'%')</if>				
+				OR h.teacherno LIKE
+					<if test="dbName == 'oracle'">'%'||#{student.studentno}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{student.studentno}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{student.studentno},'%')</if>	
+			</if>	 -->		
+			<choose>
+				<when test="addtime != null and addtime != '' and edittime != null and edittime != ''">
+					AND (a.addtime between #{addtime} AND #{edittime})
+				</when>
+				<when test="addtime != null and addtime != '' ">
+					AND a.addtime <![CDATA[ < ]]> 0
+				</when>				
+				<otherwise>
+				</otherwise>
+			</choose>
+		</where>
+			group by a.programid
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>		
+	
+	<select id="findAllList" resultType="Collections">
+		SELECT 
+			<include refid="collectionColumns"/>
+		FROM t_collection a
+		<include refid="collectionJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO t_collection(
+			id,
+			studentid,
+			programid,
+			addtime,
+			edittime,
+			slock,
+			type,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag
+		) VALUES (
+			default,
+			#{studentid},
+			#{programid},
+			#{addtime},
+			#{edittime},
+			#{slock},
+			#{type},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE t_collection SET 	
+			studentid = #{studentid},
+			programid = #{programid},
+			addtime = #{addtime},
+			edittime = #{edittime},
+			slock = #{slock},
+			type = #{type},
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		UPDATE t_collection SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+</mapper>

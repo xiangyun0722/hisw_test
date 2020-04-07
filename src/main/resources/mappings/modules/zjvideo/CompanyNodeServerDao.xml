@@ -1,0 +1,204 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.zjvideo.dao.CompanyNodeServerDao">
+    
+	<sql id="companyNodeServerColumns">
+		a.id AS "id",
+		a.nodeserverid AS "nodeserverid",
+		a.companyid AS "companyid",
+		a.strategy_type AS "strategyType",
+		a.optimization_node AS "optimizationNode",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag"
+	</sql>	
+	
+	<sql id="companyNodeServerJoinColumns">
+		a.id AS "id",
+		a.nodeserverid AS "nodeserverid",
+		a.companyid AS "companyid",
+		a.strategy_type AS "strategyType",
+		a.optimization_node AS "optimizationNode",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		o.name AS "office.name",
+		s.name AS "nodeServer.name"
+	</sql>
+	
+	<sql id="companyNodeServerJoins">
+		LEFT JOIN sys_office o ON o.id = a.companyid
+		LEFT JOIN t_nodeserver s ON s.id = a.nodeserverid
+	</sql>
+    
+	<select id="get" resultType="CompanyNodeServer">
+		SELECT 
+			<include refid="companyNodeServerColumns"/>
+		FROM t_companynodeserver a
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="CompanyNodeServer">
+		SELECT 
+			<include refid="companyNodeServerJoinColumns"/>
+		FROM t_companynodeserver a
+		<include refid="companyNodeServerJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="strategyType != null and strategyType != ''">
+				AND a.strategy_type LIKE 
+					<if test="dbName == 'oracle'">'%'||#{strategyType}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{strategyType}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{strategyType},'%')</if>
+			</if>
+			<if test="optimizationNode != null and optimizationNode != ''">
+				AND a.optimization_node = #{optimizationNode}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="CompanyNodeServer">
+		SELECT 
+			<include refid="companyNodeServerColumns"/>
+		FROM t_companynodeserver a
+		<include refid="companyNodeServerJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO t_companynodeserver(
+			id,
+			nodeserverid,
+			companyid,
+			strategy_type,
+			optimization_node,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag
+		) VALUES (
+			default,
+			#{nodeserverid},
+			#{companyid},
+			#{strategyType},
+			#{optimizationNode},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE t_companynodeserver SET 	
+			nodeserverid = #{nodeserverid},
+			companyid = #{companyid},
+			strategy_type = #{strategyType},
+			optimization_node = #{optimizationNode},
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		UPDATE t_companynodeserver SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	<!-- 按照公司ID查询源站服务器 -->
+	<sql id="stationnodeServerColumns">
+		a.id AS "id",
+		a.nodeserverid AS "nodeserverid",
+		a.companyid AS "companyid",
+		a.strategy_type AS "strategyType",
+		a.optimization_node AS "optimizationNode",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		s.ipaddress AS "nodeServer.ipaddress",
+		s.url AS "nodeServer.url",
+		s.cdnurl as "nodeServer.cdnurl"
+	</sql>
+	
+	<sql id="stationnodeServerJoins">
+		JOIN t_nodeserver s ON s.id = a.nodeserverid
+		JOIN t_nodegroup g ON g.nodeid = a.nodeserverid
+    </sql>
+    	
+	<select id="stationnodeServerQueryByCompanyId" resultType="CompanyNodeServer">
+		SELECT 
+			<include refid="stationnodeServerColumns"/>
+		FROM t_companynodeserver a
+		<include refid="stationnodeServerJoins"/>
+		<where>
+			a.companyid = #{companyid}
+			AND
+			g.station_flag = 1
+		</where>
+	</select>	
+	<!-- End -->
+	
+	<!-- 根据公司ID随机查询服务器 -->
+	<sql id="nodeServerColumns">
+		a.id AS "id",
+		a.nodeserverid AS "nodeserverid",
+		a.companyid AS "companyid",
+		a.strategy_type AS "strategyType",
+		a.optimization_node AS "optimizationNode",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		s.ipaddress AS "nodeServer.ipaddress"
+	</sql>
+	
+	<sql id="nodeServerJoins">
+		JOIN t_nodeserver s ON s.id = a.nodeserverid
+    </sql>
+    	
+	<select id="nodeServerQueryByCompanyId" resultType="CompanyNodeServer">
+		SELECT 
+			<include refid="nodeServerColumns"/>
+		FROM t_companynodeserver a
+		<include refid="nodeServerJoins"/>
+		<where>
+			a.companyid = #{companyid}
+		</where>
+	</select>	
+	<!-- End -->		
+</mapper>

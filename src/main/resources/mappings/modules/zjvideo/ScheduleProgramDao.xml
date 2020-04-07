@@ -1,0 +1,272 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.zjvideo.dao.ScheduleProgramDao">
+    
+	<sql id="scheduleProgramColumns">
+		a.id AS "id",
+		a.name AS "name",
+		a.videoid AS "videoid",
+		a.channel_id AS "channelId",
+		a.start_time AS "startTime",
+		a.date AS "date",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.end_time as "endTime",
+		a.use_time as "useTime",
+		a.status as "status"
+	</sql>
+	
+	<sql id="scheduleProgramJoins">
+	</sql>
+    
+	<select id="get" resultType="ScheduleProgram">
+		SELECT 
+			<include refid="scheduleProgramColumns"/>
+		FROM t_schedule_program a
+		<include refid="scheduleProgramJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="ScheduleProgram">
+		SELECT 
+			<include refid="scheduleProgramColumns"/>
+		FROM t_schedule_program a
+		<include refid="scheduleProgramJoins"/>
+		<where>
+			<if test="date != null and date != ''">
+				AND a.date = #{date}
+			</if>
+			<if test="channelId != null and channelId != ''">
+				AND a.channel_id = #{channelId}
+			</if>
+			<if test="name != null and name != ''">
+				AND a.name LIKE 
+					<if test="dbName == 'oracle'">'%'||#{name}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{name}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{name},'%')</if>
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+
+	<select id="getDetail" resultType="ScheduleProgram">
+		SELECT
+		a.id AS "id",
+		a.name AS "name",
+		a.videoid AS "videoid",
+		a.channel_id AS "channelId",
+		a.start_time AS "startTime",
+		a.date AS "date",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.end_time as "endTime",
+		a.use_time as "useTime",
+		a.status as "status",
+		t.convertstatus as "convertstatus",
+		ifnull(a.status,t.convertstatus) as "videoStatus",
+		m.picurl as "picurl",
+		m.path as "path",
+		m.length as "length",
+		m.fileszie as "fileSize",
+		m.resolution as "resolution",
+		m.avgrate as "bitRate",
+		m.format as "format"
+		FROM t_schedule_program a
+		LEFT JOIN t_videotranscodingtask t ON a.videoid = t.videoid
+		left join t_media m on m.videotranscodingtaskid = t.id
+		WHERE a.id = #{id}
+		 and   t.templateid=6
+	</select>
+
+	<select id="findShowList" resultType="ScheduleProgram">
+		SELECT
+		a.id AS "id",
+		a.name AS "name",
+		a.videoid AS "videoid",
+		a.channel_id AS "channelId",
+		a.start_time AS "startTime",
+		a.date AS "date",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.end_time as "endTime",
+		a.use_time as "useTime",
+		a.status as "status",
+		t.convertstatus as "convertstatus",
+		ifnull(a.status,t.convertstatus) as "videoStatus",
+		m.picurl as "picurl",
+		m.path as "path",
+		m.length as "length",
+		m.fileszie as "fileSize",
+		m.avgrate as "bitRate",
+		m.format as "format"
+		FROM t_schedule_program a
+		LEFT JOIN t_videotranscodingtask t ON a.videoid = t.videoid
+		left join t_media m on m.videotranscodingtaskid = t.id
+		<where>
+			<if test="date != null and date != ''">
+				AND a.date = #{date}
+			</if>
+			<if test="channelId != null and channelId != ''">
+				AND a.channel_id = #{channelId}
+			</if>
+			<if test="name != null and name != ''">
+				AND a.name LIKE
+				<if test="dbName == 'oracle'">'%'||#{name}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{name}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{name},'%')</if>
+			</if>
+			and   t.templateid=6
+		</where>
+		GROUP BY a.id
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="ScheduleProgram">
+		SELECT 
+			<include refid="scheduleProgramColumns"/>
+		FROM t_schedule_program a
+		<include refid="scheduleProgramJoins"/>
+		<where>
+			
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO t_schedule_program(
+			name,
+			channel_id,
+			videoid,
+			start_time,
+			date,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks
+		) VALUES (
+			#{name},
+			#{channelId},
+			#{videoid},
+			#{startTime},
+			#{date},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE t_schedule_program SET 	
+			name = #{name},
+			channel_id = #{channelId},
+			videoid = #{videoid},
+			start_time = #{startTime},
+			date = #{date},
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		DELETE FROM t_schedule_program
+		WHERE id = #{id}
+	</update>
+
+	<select id="getProgramByStatus" parameterType="int" resultType="ScheduleProgram">
+		select
+		a.id AS "id",
+		a.name AS "name",
+		a.videoid AS "videoid",
+		a.channel_id AS "channelId",
+		a.start_time AS "startTime",
+		a.date AS "date",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.end_time as "endTime",
+		a.use_time as "useTime",
+		a.status as "videoStatus",
+		m.picurl as "picurl",
+		m.path as "path",
+		m.length as "length",
+		m.resolution as "resolution",
+		m.fileszie as "fileSize",
+		m.avgrate as "bitRate",
+		m.format as "format"
+		FROM t_schedule_program a
+		LEFT JOIN t_videotranscodingtask t ON a.videoid = t.videoid
+		LEFT JOIN t_media m on m.videotranscodingtaskid = t.id
+		WHERE a.status = #{status}
+		AND   t.templateid=6
+     	limit 1
+	</select>
+
+	<select id="selectNextProgram"  resultType="ScheduleProgram">
+		select
+		a.id AS "id",
+		a.name AS "name",
+		a.videoid AS "videoid",
+		a.channel_id AS "channelId",
+		a.start_time AS "startTime",
+		a.date AS "date",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.end_time as "endTime",
+		a.use_time as "useTime",
+		a.status as "videoStatus",
+		m.picurl as "picurl",
+		m.path as "path",
+		m.length as "length",
+		m.fileszie as "fileSize",
+		m.avgrate as "bitRate",
+		m.format as "format"
+		FROM t_schedule_program a
+		left join t_media m on a.videoid = m.videosid
+		where a.start_time <![CDATA[ > ]]> #{time}
+		and a.date = DATE_FORMAT(#{date},'%Y-%m-%d')
+		and a.status is null
+		order by a.start_time asc
+		limit 1
+	</select>
+
+	
+</mapper>

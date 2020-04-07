@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.meeting.dao.MeetingMeetingInfoDao">
+    
+	<sql id="meetingMeetingInfoColumns">
+		a.id AS "id",
+		a.name AS "name",
+		a.content AS "content",
+		a.present AS "present",
+		a.length AS "length",
+		a.img AS "img",
+		a.imgs AS "imgs",
+		a.ppt AS "ppt",
+		a.ppt_uuid AS "pptUuid",
+		a.video AS "video",
+		a.type AS "type",
+		a.channel_id AS "meetingLiveChannel.id",
+		a.start_time AS "startTime",
+		a.end_time AS "endTime",
+		a.max_number AS "maxNumber",
+		a.login_type AS "loginType",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		ch.name AS "meetingLiveChannel.name"
+	</sql>
+	
+	<sql id="meetingMeetingInfoJoins">
+		left join meeting_live_channel ch on ch.id = a.channel_id
+	</sql>
+    
+	<select id="get" resultType="MeetingMeetingInfo">
+		SELECT 
+			<include refid="meetingMeetingInfoColumns"/>
+		FROM meeting_meeting_info a
+		<include refid="meetingMeetingInfoJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="MeetingMeetingInfo">
+		SELECT 
+			<include refid="meetingMeetingInfoColumns"/>
+		FROM meeting_meeting_info a
+		<include refid="meetingMeetingInfoJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="name != null and name != ''">
+				AND a.name LIKE 
+					<if test="dbName == 'oracle'">'%'||#{name}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{name}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{name},'%')</if>
+			</if>
+			<if test="present != null and present != ''">
+				AND a.present = #{present}
+			</if>
+			<if test="type != null">
+				AND a.type = #{type}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="MeetingMeetingInfo">
+		SELECT 
+			<include refid="meetingMeetingInfoColumns"/>
+		FROM meeting_meeting_info a
+		<include refid="meetingMeetingInfoJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO meeting_meeting_info(
+			id,
+			name,
+			content,
+			present,
+			length,
+			img,
+			imgs,
+			ppt,
+			ppt_uuid,
+			video,
+			type,
+			channel_id,
+			start_time,
+			end_time,
+			max_number,
+			login_type,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag
+		) VALUES (
+			#{id},
+			#{name},
+			#{content},
+			#{present},
+			#{length},
+			#{img},
+			#{imgs},
+			#{ppt},
+			#{pptUuid},
+			#{video},
+			#{type},
+			#{meetingLiveChannel.id},
+			#{startTime},
+			#{endTime},
+			#{maxNumber},
+			#{loginType},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE meeting_meeting_info SET 	
+			name = #{name},
+			content = #{content},
+			present = #{present},
+			length = #{length},
+			img = #{img},
+			imgs = #{imgs},
+			ppt = #{ppt},
+			ppt_uuid = #{pptUuid},
+			video = #{video},
+			type = #{type},
+			channel_id = #{meetingLiveChannel.id},
+			start_time = #{startTime},
+			end_time = #{endTime},
+			max_number = #{maxNumber},
+			login_type = #{loginType},
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		UPDATE meeting_meeting_info SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+</mapper>

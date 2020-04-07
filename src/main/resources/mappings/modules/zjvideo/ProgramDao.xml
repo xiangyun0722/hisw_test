@@ -1,0 +1,323 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.zjvideo.dao.ProgramDao">
+    
+	<sql id="programColumns">
+		a.id AS "id",
+		a.name AS "name",
+		a.ename AS "ename",
+		a.clazzid AS "clazzid",
+		a.picurl AS "picurl",
+		a.actor AS "actor",
+		a.director AS "director",
+		a.iyear AS "iyear",
+		a.areaid AS "areaid",
+		a.language AS "language",
+		a.detail AS "detail",
+		a.keyword AS "keyword",
+		a.taglist AS "taglist",
+		a.viewpoint AS "viewpoint",
+		a.starlevel AS "starlevel",
+		a.volume AS "volume",
+		a.status AS "status",
+		a.publishtime AS "publishtime",
+		a.auditer AS "auditer",
+		a.audittime AS "audittime",
+		a.auditreason AS "auditreason",
+		a.addtime AS "addtime",
+		a.adder AS "adder",
+		a.edittime AS "edittime",
+		a.editer AS "editer",
+		a.slock AS "slock",
+		a.isrecommend AS "isrecommend",
+		a.isnew AS "isnew",
+		a.playtimes AS "playtimes",
+		a.viewtimes AS "viewtimes",
+		a.collectiontimes AS "collectiontimes",
+		a.teacherno AS "teacherno",
+		a.hour AS "hour",
+		a.isonline AS "isonline",
+		a.serverid AS "serverid",
+		a.host AS "host",
+		a.flag AS "flag",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag"
+	</sql>
+	
+	<!--添加用户权限组处理列表 -->
+	<sql id="programColumnsOwnGroup">
+		a.id AS "id",
+		a.name AS "name",
+		a.ename AS "ename",
+		a.clazzid AS "clazzid",
+		a.picurl AS "picurl",
+		a.actor AS "actor",
+		a.director AS "director",
+		a.iyear AS "iyear",
+		a.areaid AS "areaid",
+		a.language AS "language",
+		a.detail AS "detail",
+		a.keyword AS "keyword",
+		a.taglist AS "taglist",
+		a.viewpoint AS "viewpoint",
+		a.starlevel AS "starlevel",
+		a.volume AS "volume",
+		a.status AS "status",
+		a.publishtime AS "publishtime",
+		a.auditer AS "auditer",
+		a.audittime AS "audittime",
+		a.auditreason AS "auditreason",
+		a.addtime AS "addtime",
+		a.adder AS "adder",
+		a.edittime AS "edittime",
+		a.editer AS "editer",
+		a.slock AS "slock",
+		a.isrecommend AS "isrecommend",
+		a.isnew AS "isnew",
+		a.playtimes AS "playtimes",
+		a.viewtimes AS "viewtimes",
+		a.collectiontimes AS "collectiontimes",
+		a.teacherno AS "teacherno",
+		a.hour AS "hour",
+		a.isonline AS "isonline",
+		a.serverid AS "serverid",
+		a.host AS "host",
+		a.flag AS "flag",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		p.groupname AS "ownGroupName",
+		p.id AS "groupIds",
+		g.id AS "programGroupId"
+	</sql>
+		
+	<sql id="programJoinsQuery">
+		LEFT JOIN t_programgroup g 
+			ON a.id = g.programid 
+		LEFT JOIN t_group p 
+			ON g.groupid = p.id
+	</sql>	
+		
+	<sql id="programJoins">
+	</sql>
+    
+	<select id="get" resultType="Program">
+		SELECT 
+			<include refid="programColumns"/>
+		FROM t_program a
+		<include refid="programJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findOwnGroupList" resultType="Program">
+		SELECT 
+			<include refid="programColumnsOwnGroup"/>
+		FROM t_program a
+		<include refid="programJoinsQuery"/>
+		WHERE a.id = #{id}
+	</select>
+	<!-- END 用户定义 -->	
+	
+	<select id="findList" resultType="Program">
+		SELECT 
+			<include refid="programColumns"/>
+		FROM t_program a
+		<include refid="programJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="name != null and name != ''">
+				AND a.name LIKE 
+					<if test="dbName == 'oracle'">'%'||#{name}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{name}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{name},'%')</if>
+			</if>
+			<if test="ename != null and ename != ''">
+				AND a.ename = #{ename}
+			</if>
+			<if test="status != null and status != '' and status != 10">
+				AND a.status = #{status}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="Program">
+		SELECT 
+			<include refid="programColumns"/>
+		FROM t_program a
+		<include refid="programJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert" useGeneratedKeys="true" keyProperty="id" >
+		INSERT INTO t_program(
+			id,
+			name,
+			ename,
+			clazzid,
+			picurl,
+			actor,
+			director,
+			iyear,
+			areaid,
+			language,
+			detail,
+			keyword,
+			taglist,
+			viewpoint,
+			starlevel,
+			volume,
+			status,
+			publishtime,
+			auditer,
+			audittime,
+			auditreason,
+			addtime,
+			adder,
+			edittime,
+			editer,
+			slock,
+			isrecommend,
+			isnew,
+			playtimes,
+			viewtimes,
+			collectiontimes,
+			teacherno,
+			hour,
+			isonline,
+			serverid,
+			host,
+			flag,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag
+		) VALUES (
+			default,
+			#{name},
+			#{ename},
+			#{clazzid},
+			#{picurl},
+			#{actor},
+			#{director},
+			#{iyear},
+			#{areaid},
+			#{language},
+			#{detail},
+			#{keyword},
+			#{taglist},
+			#{viewpoint},
+			#{starlevel},
+			#{volume},
+			#{status},
+			#{publishtime},
+			#{auditer},
+			#{audittime},
+			#{auditreason},
+			#{addtime},
+			#{adder},
+			#{edittime},
+			#{editer},
+			#{slock},
+			#{isrecommend},
+			#{isnew},
+			#{playtimes},
+			#{viewtimes},
+			#{collectiontimes},
+			#{teacherno},
+			#{hour},
+			#{isonline},
+			#{serverid},
+			#{host},
+			#{flag},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE t_program SET 	
+			name = #{name},
+			ename = #{ename},
+			clazzid = #{clazzid},
+			picurl = #{picurl},
+			actor = #{actor},
+			director = #{director},
+			iyear = #{iyear},
+			areaid = #{areaid},
+			language = #{language},
+			detail = #{detail},
+			keyword = #{keyword},
+			taglist = #{taglist},
+			viewpoint = #{viewpoint},
+			starlevel = #{starlevel},
+			volume = #{volume},
+			status = #{status},
+			publishtime = #{publishtime},
+			auditer = #{auditer},
+			audittime = #{audittime},
+			auditreason = #{auditreason},
+			addtime = #{addtime},
+			adder = #{adder},
+			edittime = #{edittime},
+			editer = #{editer},
+			slock = #{slock},
+			isrecommend = #{isrecommend},
+			isnew = #{isnew},
+			playtimes = #{playtimes},
+			viewtimes = #{viewtimes},
+			collectiontimes = #{collectiontimes},
+			teacherno = #{teacherno},
+			hour = #{hour},
+			isonline = #{isonline},
+			serverid = #{serverid},
+			host = #{host},
+			flag = #{flag},
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		UPDATE t_program SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	<!-- 数据库删除课程信息 -->	
+	<delete id="deleteProgram">
+		DELETE 
+			FROM t_program 
+		WHERE id = #{id}
+	</delete>	
+</mapper>

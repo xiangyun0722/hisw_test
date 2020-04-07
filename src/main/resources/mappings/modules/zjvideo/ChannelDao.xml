@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.zjvideo.dao.ChannelDao">
+    
+	<sql id="channelColumns">
+		a.id AS "id",
+		a.name AS "name",
+		a.picid AS "picid",
+		a.push_url_one AS "pushUrlOne",
+		a.play_url_one AS "playUrlOne",
+		a.push_url_two AS "pushUrlTwo",
+		a.play_url_two AS "playUrlTwo",
+		a.push_url_three AS "pushUrlThree",
+		a.play_url_three AS "playUrlThree",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.templateid AS "templateid"
+	</sql>
+	
+	<sql id="channelJoins">
+	</sql>
+    
+	<select id="get" resultType="Channel">
+		SELECT 
+			<include refid="channelColumns"/>
+		FROM t_channel a
+		<include refid="channelJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="Channel">
+		SELECT 
+			<include refid="channelColumns"/>
+		FROM t_channel a
+		<include refid="channelJoins"/>
+		<where>
+			
+			<if test="name != null and name != ''">
+				AND a.name LIKE 
+					<if test="dbName == 'oracle'">'%'||#{name}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{name}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{name},'%')</if>
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="Channel">
+		SELECT 
+			<include refid="channelColumns"/>
+		FROM t_channel a
+		<include refid="channelJoins"/>
+		<where>
+			
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO t_channel(
+			name, 
+			picid,
+			push_url_one,
+			play_url_one,
+			push_url_two,
+			play_url_two,
+			push_url_three,
+			play_url_three,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			templateid
+		) VALUES (
+			#{name},
+			#{picid},
+			#{pushUrlOne},
+			#{playUrlOne},
+			#{pushUrlTwo},
+			#{playUrlTwo},
+			#{pushUrlThree},
+			#{playUrlThree},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{templateid}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE t_channel SET 	
+			name = #{name},
+			picid = #{picid},
+			push_url_one = #{pushUrlOne},
+			play_url_one = #{playUrlOne},
+			push_url_two = #{pushUrlTwo},
+			play_url_two = #{playUrlTwo},
+			push_url_three = #{pushUrlThree},
+			play_url_three = #{playUrlThree},
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks},
+			templateid = #{templateid}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		DELETE FROM t_channel
+		WHERE id = #{id}
+	</update>
+	
+</mapper>

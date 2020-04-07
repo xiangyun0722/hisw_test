@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.meeting.dao.MeetingChinanetLiveChannelDao">
+    
+	<sql id="meetingChinanetLiveChannelColumns">
+		a.id AS "id",
+		a.name AS "name",
+		a.rel_id AS "relId",
+		a.transcoding_paras AS "transcodingParas",
+		a.push_rtmp_url AS "pushRtmpUrl",
+		a.logo AS "logo",
+		a.rtmp_hd AS "rtmpHd",
+		a.rtmp_sd AS "rtmpSd",
+		a.rtmp_nd AS "rtmpNd",
+		a.rtmp_vn AS "rtmpVn",
+		a.hls_hd AS "hlsHd",
+		a.hls_sd AS "hlsSd",
+		a.hls_nd AS "hlsNd",
+		a.hls_vn AS "hlsVn",
+		a.status AS "status",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag"
+	</sql>
+	
+	<sql id="meetingChinanetLiveChannelJoins">
+	</sql>
+    
+	<select id="get" resultType="MeetingChinanetLiveChannel">
+		SELECT 
+			<include refid="meetingChinanetLiveChannelColumns"/>
+		FROM meeting_chinanet_live_channel a
+		<include refid="meetingChinanetLiveChannelJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="getByRelId" resultType="MeetingChinanetLiveChannel">
+		SELECT 
+			<include refid="meetingChinanetLiveChannelColumns"/>
+		FROM meeting_chinanet_live_channel a
+		<include refid="meetingChinanetLiveChannelJoins"/>
+		WHERE a.rel_id = #{relId}
+	</select>
+	
+	<select id="findList" resultType="MeetingChinanetLiveChannel">
+		SELECT 
+			<include refid="meetingChinanetLiveChannelColumns"/>
+		FROM meeting_chinanet_live_channel a
+		<include refid="meetingChinanetLiveChannelJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="name != null and name != ''">
+				AND a.name LIKE 
+					<if test="dbName == 'oracle'">'%'||#{name}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{name}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{name},'%')</if>
+			</if>
+			<if test="relId != null and relId != ''">
+				AND a.rel_id LIKE 
+					<if test="dbName == 'oracle'">'%'||#{relId}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{relId}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{relId},'%')</if>
+			</if>
+			<if test="transcodingParas != null and transcodingParas != ''">
+				AND a.transcoding_paras LIKE 
+					<if test="dbName == 'oracle'">'%'||#{transcodingParas}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{transcodingParas}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{transcodingParas},'%')</if>
+			</if>
+			<if test="status != null and status != ''">
+				AND a.status = #{status}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="MeetingChinanetLiveChannel">
+		SELECT 
+			<include refid="meetingChinanetLiveChannelColumns"/>
+		FROM meeting_chinanet_live_channel a
+		<include refid="meetingChinanetLiveChannelJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO meeting_chinanet_live_channel(
+			id,
+			name,
+			rel_id,
+			transcoding_paras,
+			push_rtmp_url,
+			logo,
+			rtmp_hd,
+			rtmp_sd,
+			rtmp_nd,
+			rtmp_vn,
+			hls_hd,
+			hls_sd,
+			hls_nd,
+			hls_vn,
+			status,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag
+		) VALUES (
+			#{id},
+			#{name},
+			#{relId},
+			#{transcodingParas},
+			#{pushRtmpUrl},
+			#{logo},
+			#{rtmpHd},
+			#{rtmpSd},
+			#{rtmpNd},
+			#{rtmpVn},
+			#{hlsHd},
+			#{hlsSd},
+			#{hlsNd},
+			#{hlsVn},
+			#{status},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE meeting_chinanet_live_channel SET 	
+			name = #{name},
+			rel_id = #{relId},
+			transcoding_paras = #{transcodingParas},
+			push_rtmp_url = #{pushRtmpUrl},
+			logo = #{logo},
+			rtmp_hd = #{rtmpHd},
+			rtmp_sd = #{rtmpSd},
+			rtmp_nd = #{rtmpNd},
+			rtmp_vn = #{rtmpVn},
+			hls_hd = #{hlsHd},
+			hls_sd = #{hlsSd},
+			hls_nd = #{hlsNd},
+			hls_vn = #{hlsVn},
+			status = #{status},
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		UPDATE meeting_chinanet_live_channel SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+</mapper>

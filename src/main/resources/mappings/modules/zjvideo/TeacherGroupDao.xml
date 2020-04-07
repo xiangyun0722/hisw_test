@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.zjvideo.dao.TeacherGroupDao">
+    
+	<sql id="teacherGroupColumns">
+		a.id AS "id",
+		a.teacherid AS "teacherid",
+		a.groupid AS "groupid",
+		a.addtime AS "addtime",
+		a.edittime AS "edittime",
+		a.slock AS "slock",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag"
+	</sql>
+	
+	<sql id="teacherGroupJoins">
+	</sql>
+    
+	<select id="get" resultType="TeacherGroup">
+		SELECT 
+			<include refid="teacherGroupColumns"/>
+		FROM t_teachergroup a
+		<include refid="teacherGroupJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="TeacherGroup">
+		SELECT 
+			<include refid="teacherGroupColumns"/>
+		FROM t_teachergroup a
+		<include refid="teacherGroupJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="teacherid != null and teacherid != ''">
+				AND a.teacherid = #{teacherid}
+			</if>
+			<if test="groupid != null and groupid != ''">
+				AND a.groupid = #{groupid}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="TeacherGroup">
+		SELECT 
+			<include refid="teacherGroupColumns"/>
+		FROM t_teachergroup a
+		<include refid="teacherGroupJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert" useGeneratedKeys="true" keyProperty="id" >
+		INSERT INTO t_teachergroup(
+			id,
+			teacherid,
+			groupid,
+			addtime,
+			edittime,
+			slock,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag
+		) VALUES (
+			default,
+			#{teacherid},
+			#{groupid},
+			#{addtime},
+			#{edittime},
+			#{slock},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE t_teachergroup SET 	
+			teacherid = #{teacherid},
+			groupid = #{groupid},
+			addtime = #{addtime},
+			edittime = #{edittime},
+			slock = #{slock},
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		UPDATE t_teachergroup SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	<!-- 教师组信息列表 -->
+	<select id="findByTeacherid" resultType="TeacherGroup">
+		SELECT 
+			<include refid="teacherGroupColumns"/>
+		FROM t_teachergroup a
+			<include refid="teacherGroupJoins"/>
+		WHERE a.teacherid = #{teacherid}
+	</select>
+	
+	<!-- 数据库删除权限组信息 -->	
+	<delete id="deleteTeacherGroup">
+		DELETE 
+			FROM t_teachergroup 
+		WHERE id = #{id}
+	</delete>			
+</mapper>

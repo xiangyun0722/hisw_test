@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.zjvideo.dao.NodeServerDao">
+    
+	<sql id="nodeServerColumns">
+		a.id AS "id",
+		a.loadnum AS "loadnum",
+		a.url AS "url",
+		a.cdnurl as "cdnurl",
+		a.name AS "name",
+		a.maxload AS "maxload",
+		a.online_flag AS "onlineFlag",
+		a.optimal_config AS "optimalConfig",
+		a.ipaddress AS "ipaddress",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.location  AS "location",
+		a.carrier AS "carrier",		
+		a.del_flag AS "delFlag"
+		<!-- g.groupname AS "nodeServerGroup.groupname" -->
+	</sql>
+	
+	<sql id="nodeServerJoins">
+		<!-- LEFT JOIN t_nodeservergroup g on a.nodeservergroupid = g.id -->
+	</sql>
+    
+	<select id="get" resultType="NodeServer">
+		SELECT 
+			<include refid="nodeServerColumns"/>
+		FROM t_nodeserver a
+		<include refid="nodeServerJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="NodeServer">
+		SELECT 
+			<include refid="nodeServerColumns"/>
+		FROM t_nodeserver a
+		<include refid="nodeServerJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="name != null and name != ''">
+				AND a.name LIKE 
+					<if test="dbName == 'oracle'">'%'||#{name}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{name}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{name},'%')</if>
+			</if>
+			<if test="onlineFlag != null and onlineFlag != '' and onlineFlag != 3">
+				AND a.online_flag = #{onlineFlag}
+			</if>
+			<if test="ipaddress != null and ipaddress != ''">
+				AND a.ipaddress LIKE 
+					<if test="dbName == 'oracle'">'%'||#{ipaddress}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{ipaddress}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{ipaddress},'%')</if>
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="NodeServer">
+		SELECT 
+			<include refid="nodeServerColumns"/>
+		FROM t_nodeserver a
+		<include refid="nodeServerJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO t_nodeserver(
+			id,
+			loadnum,
+			url,
+			cdnurl,
+			name,
+			maxload,
+			online_flag,
+			optimal_config,
+			ipaddress,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			location,
+			carrier,			
+			remarks,
+			del_flag
+		) VALUES (
+			default,
+			#{loadnum},
+			#{url},
+			#{cdnurl},
+			#{name},
+			#{maxload},
+			#{onlineFlag},
+			#{optimalConfig},
+			#{ipaddress},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{location},
+			#{carrier},			
+			#{remarks},
+			#{delFlag}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE t_nodeserver SET 	
+			loadnum = #{loadnum},
+			url = #{url},
+			cdnurl = #{cdnurl},
+			name = #{name},
+			maxload = #{maxload},
+			online_flag = #{onlineFlag},
+			optimal_config = #{optimalConfig},
+			ipaddress = #{ipaddress},
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			location = #{location},
+			carrier = #{carrier},			
+			remarks = #{remarks}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		UPDATE t_nodeserver SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	<!-- 查询所有模板信息 -->
+	<select id="getAllNodeServer" resultType="NodeServer">
+		SELECT 
+			<include refid="nodeServerColumns"/>
+		FROM t_nodeserver a
+	</select>	
+</mapper>

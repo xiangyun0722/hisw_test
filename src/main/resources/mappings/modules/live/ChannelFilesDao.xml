@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.live.dao.ChannelFilesDao">
+    
+	<sql id="channelFilesColumns">
+		a.id AS "id",
+		a.name AS "name",
+		a.live_channel_id AS "liveChannel.id",
+		a.file_size AS "fileSize",
+		a.file_path AS "filePath",
+		a.download_url AS "downloadUrl",
+		a.start_datetime AS "startDatetime",
+		a.end_datetime AS "endDatetime",
+		a.play_time AS "playTime",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag"
+	</sql>
+	
+	<sql id="channelFilesJoins">
+	</sql>
+    
+	<select id="get" resultType="ChannelFiles">
+		SELECT 
+			<include refid="channelFilesColumns"/>
+		FROM live_channel_files a
+		<include refid="channelFilesJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="ChannelFiles">
+		SELECT 
+			<include refid="channelFilesColumns"/>
+		FROM live_channel_files a
+		<include refid="channelFilesJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="name != null and name != ''">
+				AND a.name LIKE 
+					<if test="dbName == 'oracle'">'%'||#{name}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{name}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{name},'%')</if>
+			</if>
+			<if test="liveChannel != null and liveChannel.id != null and liveChannel.id != ''">
+				AND a.live_channel_id = #{liveChannel.id}
+			</if>
+			<if test="filePath != null and filePath != ''">
+				AND a.file_path LIKE 
+					<if test="dbName == 'oracle'">'%'||#{filePath}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{filePath}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{filePath},'%')</if>
+			</if>
+			<if test="downloadUrl != null and downloadUrl != ''">
+				AND a.download_url LIKE 
+					<if test="dbName == 'oracle'">'%'||#{downloadUrl}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{downloadUrl}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{downloadUrl},'%')</if>
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="ChannelFiles">
+		SELECT 
+			<include refid="channelFilesColumns"/>
+		FROM live_channel_files a
+		<include refid="channelFilesJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO live_channel_files(
+			id,
+			name,
+			live_channel_id,
+			file_size,
+			file_path,
+			download_url,
+			start_datetime,
+			end_datetime,
+			play_time,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag
+		) VALUES (
+			#{id},
+			#{name},
+			#{liveChannel.id},
+			#{fileSize},
+			#{filePath},
+			#{downloadUrl},
+			#{startDatetime},
+			#{endDatetime},
+			#{playTime},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE live_channel_files SET 	
+			name = #{name},
+			live_channel_id = #{liveChannel.id},
+			file_size = #{fileSize},
+			file_path = #{filePath},
+			download_url = #{downloadUrl},
+			start_datetime = #{startDatetime},
+			end_datetime = #{endDatetime},
+			play_time = #{playTime},
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		UPDATE live_channel_files SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+</mapper>

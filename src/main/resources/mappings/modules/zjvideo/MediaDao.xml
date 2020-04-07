@@ -1,0 +1,391 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.zjvideo.dao.MediaDao">
+    
+	<sql id="mediaColumns">
+		a.id AS "id",
+		a.videosid AS "videosid",
+		a.name AS "name",
+		a.volumne AS "volumne",
+		a.source AS "source",
+		a.clazzid AS "clazzid",
+		a.taglist AS "taglist",
+		a.picurl AS "picurl",
+		a.length AS "length",
+		a.projectid AS "projectid",
+		a.companyid AS "companyid",
+		a.videotype AS "videotype",
+		a.path AS "path",
+		a.videocodec AS "videocodec",
+		a.fileszie AS "fileszie",
+		a.avgrate AS "avgrate",
+		a.type AS "type",
+		a.format AS "format",
+		a.videorate AS "videorate",
+		a.fps AS "fps",
+		a.width AS "width",
+		a.height AS "height",
+		a.audiocodec AS "audiocodec",
+		a.audiorate AS "audiorate",
+		a.samplingrate AS "samplingrate",
+		a.quality AS "quality",
+		a.protocol AS "protocol",
+		a.terminaltype AS "terminaltype",
+		a.resolution AS "resolution",
+		a.aspectratioid AS "aspectratioid",
+		a.status AS "status",
+		a.auditinfo AS "auditinfo",
+		a.addtime AS "addtime",
+		a.adder AS "adder",
+		a.edittime AS "edittime",
+		a.editer AS "editer",
+		a.convertstatus AS "convertstatus",
+		a.convertmsg AS "convertmsg",
+		a.convertusetime AS "convertusetime",
+		a.convertstarttime AS "convertstarttime",
+		a.is_cache AS "iscache",
+		a.cache_flag AS "cacheflag",
+		a.operationtime  AS "operationtime",
+		a.plantime AS "plantime",
+		a.executetime AS "executetime",
+		a.hour AS "hour",
+		a.endtime AS "endtime",
+		a.slock AS "slock",		
+		a.mp4path AS "mp4path",
+		a.videotranscodingtaskid AS "videotranscodingtaskid",
+		a.cachePath AS "cachePath",
+		pro.name AS "project.name",
+		pro.id AS "project.id"
+	</sql>
+
+	<sql id="mediaColumnsTwo">
+		a.id AS "id",
+		a.videosid AS "videosid",
+		a.name AS "name",
+		a.volumne AS "volumne",
+		a.source AS "source",
+		a.clazzid AS "clazzid",
+		a.projectid AS "projectid",
+		a.companyid AS "companyid",
+		a.taglist AS "taglist",
+		a.picurl AS "picurl",
+		a.length AS "length",
+		a.videotype AS "videotype",
+		a.path AS "path",
+		a.videocodec AS "videocodec",
+		a.fileszie AS "fileszie",
+		a.avgrate AS "avgrate",
+		a.type AS "type",
+		a.format AS "format",
+		a.videorate AS "videorate",
+		a.fps AS "fps",
+		a.width AS "width",
+		a.height AS "height",
+		a.audiocodec AS "audiocodec",
+		a.audiorate AS "audiorate",
+		a.samplingrate AS "samplingrate",
+		a.quality AS "quality",
+		a.protocol AS "protocol",
+		a.terminaltype AS "terminaltype",
+		a.resolution AS "resolution",
+		a.aspectratioid AS "aspectratioid",
+		a.status AS "status",
+		a.auditinfo AS "auditinfo",
+		a.addtime AS "addtime",
+		a.adder AS "adder",
+		a.edittime AS "edittime",
+		a.editer AS "editer",
+		a.convertstatus AS "convertstatus",
+		a.convertmsg AS "convertmsg",
+		a.convertusetime AS "convertusetime",
+		a.convertstarttime AS "convertstarttime",
+		a.slock AS "slock",
+		a.is_cache AS "iscache",
+		a.cache_flag AS "cacheflag",
+		a.operationtime  AS "operationtime",
+		a.plantime AS "plantime",
+		a.executetime AS "executetime",
+		a.hour AS "hour",
+		a.endtime AS "endtime",
+		a.mp4path AS "mp4path"
+	</sql>
+
+	<sql id="mediaJoins">
+		 JOIN sys_user u ON u.id = a.create_by			
+		 JOIN sys_office o ON o.id = u.office_id
+		 JOIN t_project pro ON pro.id=a.projectid
+	</sql>
+    
+	<select id="get" resultType="Media">
+		SELECT 
+			<include refid="mediaColumns"/>
+		FROM t_media a
+		<include refid="mediaJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="Media">
+		SELECT 
+			<include refid="mediaColumns"/>
+		FROM t_media a
+		<include refid="mediaJoins"/>
+		<where>
+			
+			<if test="videosid != null and videosid != ''">
+				AND a.videosid = #{videosid}
+			</if>
+			<if test="type != null and type != ''">
+				AND a.type = #{type}
+			</if>
+			<if test="format != null and format != ''">
+				AND a.format = #{format}
+			</if>
+			<if test="videotranscodingtaskid != null and videotranscodingtaskid != ''">
+				AND a.videotranscodingtaskid = #{videotranscodingtaskid}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="Media">
+		SELECT 
+			<include refid="mediaColumns"/>
+		FROM t_media a
+		<include refid="mediaJoins"/>
+		<where>
+			<if test="videotranscodingtaskid != null and videotranscodingtaskid != ''">
+				AND a.videotranscodingtaskid = #{videotranscodingtaskid}
+			</if>
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO t_media(
+			id,
+			videosid,
+			name,
+			volumne,
+			source,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,				
+			clazzid,
+			taglist,
+			picurl,
+			length,
+			videotype,
+			path,
+			videocodec,
+			fileszie,
+			avgrate,
+			type,
+			projectid,
+			companyid,
+			format,
+			videorate,
+			fps,
+			width,
+			height,
+			audiocodec,
+			audiorate,
+			samplingrate,
+			quality,
+			protocol,
+			terminaltype,
+			resolution,
+			aspectratioid,
+			status,
+			auditinfo,
+			addtime,
+			adder,
+			edittime,
+			editer,
+			convertstatus,
+			convertmsg,
+			convertusetime,
+			convertstarttime,
+			slock,
+			is_cache,
+			cachePath,
+			cache_flag,
+			operationtime,
+			plantime,
+			executetime,
+			hour,
+			endtime,
+			mp4path,
+			videotranscodingtaskid
+		) VALUES (
+			default,
+			#{videosid},
+			#{name},
+			#{volumne},
+			#{source},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},				
+			#{clazzid},
+			#{taglist},
+			#{picurl},
+			#{length},
+			#{videotype},
+			#{path},
+			#{videocodec},
+			#{fileszie},
+			#{avgrate},
+			#{type},
+			#{projectid},
+			#{companyid},
+			#{format},
+			#{videorate},
+			#{fps},
+			#{width},
+			#{height},
+			#{audiocodec},
+			#{audiorate},
+			#{samplingrate},
+			#{quality},
+			#{protocol},
+			#{terminaltype},
+			#{resolution},
+			#{aspectratioid},
+			#{status},
+			#{auditinfo},
+			#{addtime},
+			#{adder},
+			#{edittime},
+			#{editer},
+			#{convertstatus},
+			#{convertmsg},
+			#{convertusetime},
+			#{convertstarttime},
+			#{slock},
+			#{iscache},
+			#{cachePath},
+			#{cacheflag},
+			#{operationtime},
+			#{plantime},
+			#{executetime},
+			#{hour},
+			#{endtime},			
+			#{mp4path},
+			#{videotranscodingtaskid}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE t_media SET 	
+			videosid = #{videosid},
+			name = #{name},
+			volumne = #{volumne},
+			source = #{source},
+			clazzid = #{clazzid},
+			taglist = #{taglist},
+			picurl = #{picurl},
+			length = #{length},
+			videotype = #{videotype},
+			path = #{path},
+			projectid = #{projectid},
+			companyid = #{companyid},
+			videocodec = #{videocodec},
+			fileszie = #{fileszie},
+			avgrate = #{avgrate},
+			type = #{type},
+			format = #{format},
+			videorate = #{videorate},
+			fps = #{fps},
+			width = #{width},
+			height = #{height},
+			audiocodec = #{audiocodec},
+			audiorate = #{audiorate},
+			samplingrate = #{samplingrate},
+			quality = #{quality},
+			protocol = #{protocol},
+			terminaltype = #{terminaltype},
+			resolution = #{resolution},
+			aspectratioid = #{aspectratioid},
+			status = #{status},
+			auditinfo = #{auditinfo},
+			addtime = #{addtime},
+			adder = #{adder},
+			edittime = #{edittime},
+			editer = #{editer},
+			convertstatus = #{convertstatus},
+			convertmsg = #{convertmsg},
+			convertusetime = #{convertusetime},
+			convertstarttime = #{convertstarttime},
+			slock = #{slock},
+			is_cache = #{iscache},
+			cachePath = #{cachePath},
+			cache_flag = #{cacheflag},
+			operationtime = #{operationtime},
+			plantime = #{plantime},
+			executetime = #{executetime},
+			hour = #{hour},
+			endtime = #{endtime},			
+			mp4path = #{mp4path},
+			videotranscodingtaskid = #{videotranscodingtaskid}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		DELETE FROM t_media
+		WHERE id = #{id}
+	</update>
+	
+	<!-- 数据库删除视频信息 -->	
+	<delete id="deleteMedia">
+		DELETE 
+			FROM t_media 
+		WHERE id = #{id}
+	</delete>
+	
+	<!-- 按照文件名查询媒资信息 -->
+	<select id="mediaQueryByName" resultType="Media">
+		SELECT 
+			<include refid="mediaColumns"/>
+		FROM t_media a
+		<include refid="mediaJoins"/>
+		<where>
+			<if test="name != null and name != ''">
+				AND a.name = #{name}
+			</if>
+			<if test="id != null and id != ''">
+				AND a.id = #{id}
+			</if>	
+			<if test="format != null and format != ''">
+				AND a.format = #{format},
+			</if>					
+			<if test="videosid != null and videosid != ''">
+				AND a.videosid = #{videosid}
+			</if>				
+		</where>
+			ORDER BY a.addtime desc
+	</select>
+
+	<select id="selectAfterTime" resultType="Media">
+		SELECT
+		<include refid="mediaColumnsTwo"/>
+		FROM t_media a
+		where a.addtime <![CDATA[ >= ]]> #{date}
+
+	</select>
+
+</mapper>

@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.zjvideo.dao.ConfigDao">
+    
+	<sql id="configColumns">
+		a.id AS "id",
+		a.config_explain AS "configExplain",
+		a.config_key AS "configKey",
+		a.config_value AS "configValue",
+		a.display AS "display",
+		a.addtime AS "addtime",
+		a.edittime AS "edittime",
+		a.slock AS "slock",
+		a.remark AS "remark",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag"
+	</sql>
+	
+	<sql id="configColumnsQuery">
+		a.id AS "id",
+		a.config_explain AS "configExplain",
+		a.config_key AS "configKey",
+		a.config_value AS "configValue",
+		a.display AS "display",
+		a.addtime AS "addtime",
+		a.edittime AS "edittime",
+		a.slock AS "slock",
+		a.remark AS "remark",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		l.livename AS "liveing.livename"
+	</sql>
+		
+	<sql id="configJoins">
+	</sql>
+    
+	<sql id="configJoinsQuery">
+		LEFT JOIN t_liveing l ON l.id = a.remark
+	</sql>
+	    
+	<select id="get" resultType="Config">
+		SELECT 
+			<include refid="configColumns"/>
+		FROM t_config a
+		<include refid="configJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<!-- 用户自定义查询信息 -->
+	<select id="findByConfigKey" resultType="Config">
+		SELECT 
+			<include refid="configColumns"/>
+		FROM t_config a
+		<include refid="configJoins"/>
+		<where>
+				a.config_key = #{configkey}
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>		
+	</select>
+		
+	<select id="findList" resultType="Config">
+		SELECT 
+			<include refid="configColumnsQuery"/>
+		FROM t_config a
+		<include refid="configJoinsQuery"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="configExplain != null and configExplain != ''">
+				AND a.config_explain LIKE 
+					<if test="dbName == 'oracle'">'%'||#{configExplain}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{configExplain}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{configExplain},'%')</if>
+			</if>
+			<if test="configValue != null and configValue != ''">
+				AND a.config_value LIKE 
+					<if test="dbName == 'oracle'">'%'||#{configValue}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{configValue}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{configValue},'%')</if>
+			</if>
+			<if test="configkey != null and configkey != ''">
+				AND a.config_key = #{configkey}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="Config">
+		SELECT 
+			<include refid="configColumns"/>
+		FROM t_config a
+		<include refid="configJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO t_config(
+			id,
+			config_explain,
+			config_key,
+			config_value,
+			display,
+			addtime,
+			edittime,
+			slock,
+			remark,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag
+		) VALUES (
+			default,
+			#{configexplain},
+			#{configKey},
+			#{configValue},
+			#{display},
+			#{configkey},
+			#{addtime},
+			#{edittime},
+			#{slock},
+			#{remark},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE t_config SET 	
+			config_explain = #{configexplain},
+			config_key = #{configKey},
+			config_value = #{configValue},
+			display = #{display},
+			addtime = #{addtime},
+			edittime = #{edittime},
+			slock = #{slock},
+			remark = #{remark},
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		UPDATE t_config SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+</mapper>

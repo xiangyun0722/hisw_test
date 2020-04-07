@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.zjvideo.dao.ClassroomDao">
+    
+	<sql id="classroomColumns">
+		a.id AS "id",
+		a.classnumber AS "classnumber",
+		a.spart AS "spart",
+		a.rname AS "rname",
+		a.position AS "position",
+		a.type AS "type",
+		a.room AS "room",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag"
+	</sql>
+	
+	<sql id="classroomJoins">
+	</sql>
+    
+	<select id="get" resultType="Classroom">
+		SELECT 
+			<include refid="classroomColumns"/>
+		FROM t_classroom a
+		<include refid="classroomJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="Classroom">
+		SELECT 
+			<include refid="classroomColumns"/>
+		FROM t_classroom a
+		<include refid="classroomJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="classnumber != null and classnumber != ''">
+				AND a.classnumber = #{classnumber}
+			</if>
+			<if test="rname != null and rname != ''">
+				AND a.rname = #{rname}
+			</if>
+			<if test="position != null and position != ''">
+				AND a.position = #{position}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="Classroom">
+		SELECT 
+			<include refid="classroomColumns"/>
+		FROM t_classroom a
+		<include refid="classroomJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO t_classroom(
+			id,
+			classnumber,
+			spart,
+			rname,
+			position,
+			type,
+			room,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag
+		) VALUES (
+			default,
+			#{classnumber},
+			#{spart},
+			#{rname},
+			#{position},
+			#{type},
+			#{room},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE t_classroom SET 	
+			classnumber = #{classnumber},
+			spart = #{spart},
+			rname = #{rname},
+			position = #{position},
+			type = #{type},
+			room = #{room},
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		UPDATE t_classroom SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+</mapper>

@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.zjvideo.dao.VideotranscodingtaskDao">
+    
+	<sql id="videotranscodingtaskColumns">
+		a.id AS "id",
+		a.templateid AS "templateid",
+		a.videoid AS "videoid",
+		a.projectid AS "projectid",
+		a.companyid AS "companyid",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		a.convertstatus AS "convertstatus",
+		a.convertmsg AS "convertmsg",
+		a.convertusetime AS "convertusetime",
+		a.convertStartTime AS "convertStartTime",
+		a.convertEndTime AS "convertEndTime"				
+	</sql>
+	
+	<sql id="videotranscodingtaskJoins">
+		JOIN sys_user u ON u.id = a.create_by	
+		JOIN sys_office o ON o.id = u.office_id
+	</sql>
+    
+	<select id="get" resultType="videotranscodingtask">
+		SELECT 
+			<include refid="videotranscodingtaskColumns"/>
+		FROM t_videotranscodingtask a
+		<include refid="videotranscodingtaskJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="videotranscodingtask">
+		SELECT 
+			<include refid="videotranscodingtaskColumns"/>
+		FROM t_videotranscodingtask a
+		<include refid="videotranscodingtaskJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<!-- 数据范围过滤 -->
+			${sqlMap.dsf}			
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="videotranscodingtask">
+		SELECT 
+			<include refid="videotranscodingtaskColumns"/>
+		FROM t_videotranscodingtask a
+		<include refid="videotranscodingtaskJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO t_videotranscodingtask(
+			id,
+			templateid,
+			videoid,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			projectid,
+			companyid,
+			del_flag,
+			convertstatus,
+			convertmsg,
+			convertusetime,
+			convertStartTime,
+			convertEndTime
+		) VALUES (
+			default,
+			#{templateid},
+			#{videoid},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{projectid},
+			#{companyid},
+			#{delFlag},
+			#{convertstatus},
+			#{convertmsg},
+			#{convertusetime},
+			#{convertStartTime},
+			#{convertEndTime}		
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE t_videotranscodingtask SET 	
+			templateid = #{templateid},
+			videoid = #{videoid},
+			projectid = #{projectid},
+			companyid = #{companyid},
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks},
+			convertstatus = #{convertstatus},
+			convertmsg = #{convertmsg},
+			convertusetime = #{convertusetime},
+			convertStartTime = #{convertStartTime},
+			convertEndTime = #{convertEndTime}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		UPDATE t_videotranscodingtask SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	<!-- 数据库删除转码任务 -->	
+	<delete id="deleteVideotranscodingtask">
+		DELETE 
+			FROM t_videotranscodingtask 
+		WHERE id = #{id}
+	</delete>	
+	
+	<!-- 转码任务信息内容查询 -->
+	<select id="findListByIds" resultType="videotranscodingtask">
+		SELECT 
+			a.id AS "id",
+			a.status AS "status"
+		FROM t_videotranscodingtask a
+		<where>
+			<if test="ids != null and ids != ''">
+				AND a.id in (${ids}) 
+			</if>
+		</where>
+		<choose>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+
+	<update id="updateStatus">
+		UPDATE t_videotranscodingtask SET
+			convertstatus = #{convertstatus}
+		WHERE id = #{id}
+
+	</update>
+
+
+</mapper>

@@ -1,0 +1,223 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.zjvideo.dao.NewsDao">
+    
+<sql id="newsColumnsOld">
+		a.id AS "id",
+		a.title AS "title",
+		a.tag AS "tag",
+		a.keylist AS "keylist",
+		a.summary AS "summary",
+		a.detail AS "detail",
+		a.clazzid AS "clazzid",
+		a.collectcount AS "collectcount",
+		a.isrecommend AS "isrecommend",
+		a.praise AS "praise",
+		a.viewcount AS "viewcount",
+		a.editer AS "editer",
+		a.editername AS "editername",
+		a.publishtime AS "publishtime",
+		a.status AS "status",
+		a.addtime AS "addtime",
+		a.edittime AS "edittime",
+		a.slock AS "slock",
+		a.picurl AS "picurl",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag"
+	</sql>
+	    
+	<sql id="newsColumns">
+		a.id AS "id",
+		a.title AS "title",
+		a.tag AS "tag",
+		a.keylist AS "keylist",
+		a.summary AS "summary",
+		a.detail AS "detail",
+		a.clazzid AS "clazzid",
+		a.collectcount AS "collectcount",
+		a.isrecommend AS "isrecommend",
+		a.praise AS "praise",
+		a.viewcount AS "viewcount",
+		a.editer AS "editer",
+		a.editername AS "editername",
+		a.publishtime AS "publishtime",
+		a.status AS "status",
+		a.addtime AS "addtime",
+		a.edittime AS "edittime",
+		a.slock AS "slock",
+		a.picurl AS "picurl",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		c.name AS "clazz.name"
+	</sql>
+	
+	<sql id="newsJoins">
+	</sql>
+    
+    <!-- 关联信息查询 -->
+    <sql id="newsJoinsQuery">
+		LEFT JOIN t_clazz c ON c.id=a.clazzid
+	</sql>
+	
+	<select id="get" resultType="News">
+		SELECT 
+			<include refid="newsColumnsOld"/>
+		FROM t_news a
+		<include refid="newsJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="News">
+		SELECT 
+			<include refid="newsColumns"/>
+		FROM t_news a
+		<include refid="newsJoinsQuery"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="title != null and title != ''">
+				AND a.title LIKE 
+					<if test="dbName == 'oracle'">'%'||#{title}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{title}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{title},'%')</if>
+			</if>
+			<if test="status != null and status != '' and status != 5">
+				AND a.status = #{status}
+			</if>
+			<if test="clazz != null and clazz.name != null and clazz.name != '' ">
+				AND c.name LIKE 
+					<if test="dbName == 'oracle'">'%'||#{clazz.name}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{clazz.name}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{clazz.name},'%')</if>
+			</if>			
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="News">
+		SELECT 
+			<include refid="newsColumns"/>
+		FROM t_news a
+		<include refid="newsJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO t_news(
+			id,
+			title,
+			tag,
+			keylist,
+			summary,
+			detail,
+			clazzid,
+			collectcount,
+			isrecommend,
+			praise,
+			viewcount,
+			editer,
+			editername,
+			publishtime,
+			status,
+			addtime,
+			edittime,
+			slock,
+			picurl,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag
+		) VALUES (
+			default,
+			#{title},
+			#{tag},
+			#{keylist},
+			#{summary},
+			#{detail},
+			#{clazzid},
+			#{collectcount},
+			#{isrecommend},
+			#{praise},
+			#{viewcount},
+			#{editer},
+			#{editername},
+			#{publishtime},
+			#{status},
+			#{addtime},
+			#{edittime},
+			#{slock},
+			#{picurl},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE t_news SET 	
+			title = #{title},
+			tag = #{tag},
+			keylist = #{keylist},
+			summary = #{summary},
+			detail = #{detail},
+			clazzid = #{clazzid},
+			collectcount = #{collectcount},
+			isrecommend = #{isrecommend},
+			praise = #{praise},
+			viewcount = #{viewcount},
+			editer = #{editer},
+			editername = #{editername},
+			publishtime = #{publishtime},
+			status = #{status},
+			addtime = #{addtime},
+			edittime = #{edittime},
+			slock = #{slock},
+			picurl = #{picurl},
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		UPDATE t_news SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	<!-- 数据库删除视频信息 -->	
+	<delete id="deleteNews">
+		DELETE 
+			FROM t_news 
+		WHERE id = #{id}
+	</delete>	
+</mapper>

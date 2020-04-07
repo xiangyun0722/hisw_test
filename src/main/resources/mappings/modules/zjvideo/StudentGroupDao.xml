@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.zjvideo.dao.StudentGroupDao">
+    
+	<sql id="studentGroupColumns">
+		a.id AS "id",
+		a.groupid AS "groupid",
+		a.userid AS "userid",
+		a.addtime AS "addtime",
+		a.edittime AS "edittime",
+		a.slock AS "slock",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag"
+	</sql>
+	
+	<sql id="studentGroupJoins">
+	</sql>
+    
+	<!-- 用户组信息列表 -->
+	<select id="findByUserid" resultType="StudentGroup">
+		SELECT 
+			<include refid="studentGroupColumns"/>
+		FROM t_studentgroup a
+			<include refid="studentGroupJoins"/>
+		WHERE a.userid = #{userid}
+	</select>
+	    
+	<select id="get" resultType="StudentGroup">
+		SELECT 
+			<include refid="studentGroupColumns"/>
+		FROM t_studentgroup a
+		<include refid="studentGroupJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="StudentGroup">
+		SELECT 
+			<include refid="studentGroupColumns"/>
+		FROM t_studentgroup a
+		<include refid="studentGroupJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="groupid != null and groupid != ''">
+				AND a.groupid = #{groupid}
+			</if>
+			<if test="userid != null and userid != ''">
+				AND a.userid = #{userid}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="StudentGroup">
+		SELECT 
+			<include refid="studentGroupColumns"/>
+		FROM t_studentgroup a
+		<include refid="studentGroupJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO t_studentgroup(
+			id,
+			groupid,
+			userid,
+			addtime,
+			edittime,
+			slock,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag
+		) VALUES (
+			default,
+			#{groupid},
+			#{userid},
+			#{addtime},
+			#{edittime},
+			#{slock},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE t_studentgroup SET 	
+			groupid = #{groupid},
+			userid = #{userid},
+			addtime = #{addtime},
+			edittime = #{edittime},
+			slock = #{slock},
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		UPDATE t_studentgroup SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	<!-- 数据库删除权限组信息 -->	
+	<delete id="deleteStudentGroup">
+		DELETE 
+			FROM t_studentgroup 
+		WHERE id = #{id}
+	</delete>		
+</mapper>

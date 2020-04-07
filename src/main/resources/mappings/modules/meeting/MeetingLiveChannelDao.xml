@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.meeting.dao.MeetingLiveChannelDao">
+    
+	<sql id="meetingLiveChannelColumns">
+		a.id AS "id",
+		a.name AS "name",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		a.logo AS "logo",
+		a.rtmp_hd AS "rtmpHd",
+		a.rtmp_sd AS "rtmpSd",
+		a.rtmp_nd AS "rtmpNd",
+		a.rtmp_vn AS "rtmpVn",
+		a.hls_hd AS "hlsHd",
+		a.hls_sd AS "hlsSd",
+		a.hls_nd AS "hlsNd",
+		a.hls_vn AS "hlsVn",
+		a.status AS "status"
+	</sql>
+	
+	<sql id="meetingLiveChannelJoins">
+	</sql>
+    
+	<select id="get" resultType="MeetingLiveChannel">
+		SELECT 
+			<include refid="meetingLiveChannelColumns"/>
+		FROM meeting_live_channel a
+		<include refid="meetingLiveChannelJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="MeetingLiveChannel">
+		SELECT 
+			<include refid="meetingLiveChannelColumns"/>
+		FROM meeting_live_channel a
+		<include refid="meetingLiveChannelJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="name != null and name != ''">
+				AND a.name LIKE 
+					<if test="dbName == 'oracle'">'%'||#{name}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{name}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{name},'%')</if>
+			</if>
+			<if test="logo != null and logo != ''">
+				AND a.logo = #{logo}
+			</if>
+			<if test="rtmpHd != null and rtmpHd != ''">
+				AND a.rtmp_hd = #{rtmpHd}
+			</if>
+			<if test="rtmpSd != null and rtmpSd != ''">
+				AND a.rtmp_sd = #{rtmpSd}
+			</if>
+			<if test="rtmpNd != null and rtmpNd != ''">
+				AND a.rtmp_nd = #{rtmpNd}
+			</if>
+			<if test="rtmpVn != null and rtmpVn != ''">
+				AND a.rtmp_vn = #{rtmpVn}
+			</if>
+			<if test="hlsHd != null and hlsHd != ''">
+				AND a.hls_hd = #{hlsHd}
+			</if>
+			<if test="hlsSd != null and hlsSd != ''">
+				AND a.hls_sd = #{hlsSd}
+			</if>
+			<if test="hlsNd != null and hlsNd != ''">
+				AND a.hls_nd = #{hlsNd}
+			</if>
+			<if test="hlsVn != null and hlsVn != ''">
+				AND a.hls_vn = #{hlsVn}
+			</if>
+			<if test="status != null">
+				AND a.status = #{status}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="MeetingLiveChannel">
+		SELECT 
+			<include refid="meetingLiveChannelColumns"/>
+		FROM meeting_live_channel a
+		<include refid="meetingLiveChannelJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO meeting_live_channel(
+			id,
+			name,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag,
+			logo,
+			rtmp_hd,
+			rtmp_sd,
+			rtmp_nd,
+			rtmp_vn,
+			hls_hd,
+			hls_sd,
+			hls_nd,
+			hls_vn,
+			status
+		) VALUES (
+			#{id},
+			#{name},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag},
+			#{logo},
+			#{rtmpHd},
+			#{rtmpSd},
+			#{rtmpNd},
+			#{rtmpVn},
+			#{hlsHd},
+			#{hlsSd},
+			#{hlsNd},
+			#{hlsVn},
+			#{status}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE meeting_live_channel SET 	
+			name = #{name},
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks},
+			logo = #{logo},
+			rtmp_hd = #{rtmpHd},
+			rtmp_sd = #{rtmpSd},
+			rtmp_nd = #{rtmpNd},
+			rtmp_vn = #{rtmpVn},
+			hls_hd = #{hlsHd},
+			hls_sd = #{hlsSd},
+			hls_nd = #{hlsNd},
+			hls_vn = #{hlsVn},
+			status = #{status}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		UPDATE meeting_live_channel SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+</mapper>

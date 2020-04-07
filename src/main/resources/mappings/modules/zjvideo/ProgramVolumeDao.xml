@@ -1,0 +1,258 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.zjvideo.dao.ProgramVolumeDao">
+    
+	<sql id="programVolumeColumns">
+		a.id AS "id",
+		a.programid AS "programid",
+		a.name AS "name",
+		a.volume AS "volume",
+		a.picurl AS "picurl",
+		a.detail AS "detail",
+		a.palytimes AS "palytimes",
+		a.addtime AS "addtime",
+		a.adder AS "adder",
+		a.edittime AS "edittime",
+		a.editer AS "editer",
+		a.slock AS "slock",
+		a.title AS "title",
+		a.realname AS "realname",
+		a.profile AS "profile",
+		a.url AS "url",
+		a.prefix AS "prefix",
+		a.suffix AS "suffix",
+		a.pagesize AS "pagesize",
+		a.exercise AS "exercise",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag"
+	</sql>
+	
+	<!-- 查询课程下面的所有剧情列表 -->
+	<sql id="programVolumeColumnsQuery">
+		a.id AS "id",
+		a.programid AS "programid",
+		a.name AS "name",
+		a.volume AS "volume",
+		a.picurl AS "picurl",
+		a.detail AS "detail",
+		a.palytimes AS "palytimes",
+		a.addtime AS "addtime",
+		a.adder AS "adder",
+		a.edittime AS "edittime",
+		a.editer AS "editer",
+		a.slock AS "slock",
+		a.title AS "title",
+		a.realname AS "realname",
+		a.profile AS "profile",
+		a.url AS "url",
+		a.prefix AS "prefix",
+		a.suffix AS "suffix",
+		a.pagesize AS "pagesize",
+		a.exercise AS "exercise",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag"
+	</sql>
+		
+	<sql id="programVolumeJoinProgram">
+		LEFT JOIN t_program p ON p.id = a.programid
+	</sql>
+	
+	<select id="findProgramVolumeList" resultType="ProgramVolume">
+		SELECT 
+			<include refid="programVolumeColumns"/>
+		FROM t_programvolume a
+		<include refid="programVolumeJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="programid != null and programid != ''">
+				AND a.programid = #{programid}
+			</if>
+			<if test="programid == null or programid == ''">
+				AND a.programid = null
+			</if>				
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>		
+	<!-- END 关联信息查询 -->	
+	
+	<sql id="programVolumeJoins">
+	</sql>
+    
+	<select id="get" resultType="ProgramVolume">
+		SELECT 
+			<include refid="programVolumeColumns"/>
+		FROM t_programvolume a
+		<include refid="programVolumeJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="ProgramVolume">
+		SELECT 
+			<include refid="programVolumeColumns"/>
+		FROM t_programvolume a
+		<include refid="programVolumeJoins"/>
+		<where>
+			 a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="programid != null and programid != ''">
+				AND a.programid = #{programid}
+			</if>
+			<!-- <if test="programid == null or programid == ''">
+				AND a.programid = null
+			</if> -->			
+			<if test="name != null and name != ''">
+				AND a.name LIKE 
+					<if test="dbName == 'oracle'">'%'||#{name}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{name}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{name},'%')</if>
+			</if>
+			<if test="volume != null and volume != ''">
+				AND a.volume LIKE 
+					<if test="dbName == 'oracle'">'%'||#{volume}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{volume}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{volume},'%')</if>
+			</if>			
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="ProgramVolume">
+		SELECT 
+			<include refid="programVolumeColumns"/>
+		FROM t_programvolume a
+		<include refid="programVolumeJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert" useGeneratedKeys="true" keyProperty="id" >
+		INSERT INTO t_programvolume(
+			id,
+			programid,
+			name,
+			volume,
+			picurl,
+			detail,
+			palytimes,
+			addtime,
+			adder,
+			edittime,
+			editer,
+			slock,
+			title,
+			realname,
+			profile,
+			url,
+			ppt_uuid,
+			prefix,
+			suffix,
+			pagesize,
+			exercise,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag
+		) VALUES (
+			default,
+			#{programid},
+			#{name},
+			#{volume},
+			#{picurl},
+			#{detail},
+			#{palytimes},
+			#{addtime},
+			#{adder},
+			#{edittime},
+			#{editer},
+			#{slock},
+			#{title},
+			#{realname},
+			#{profile},
+			#{url},
+			#{pptUuid},
+			#{prefix},
+			#{suffix},
+			#{pagesize},
+			#{exercise},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE t_programvolume SET 	
+			programid = #{programid},
+			name = #{name},
+			volume = #{volume},
+			picurl = #{picurl},
+			detail = #{detail},
+			palytimes = #{palytimes},
+			addtime = #{addtime},
+			adder = #{adder},
+			edittime = #{edittime},
+			editer = #{editer},
+			slock = #{slock},
+			title = #{title},
+			realname = #{realname},
+			profile = #{profile},
+			url = #{url},
+			ppt_uuid = #{pptUuid},
+			prefix = #{prefix},
+			suffix = #{suffix},
+			pagesize = #{pagesize},
+			exercise = #{exercise},
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		UPDATE t_programvolume SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	<!-- 数据库删除视频信息 -->	
+	<delete id="deleteProgramVolume">
+		DELETE 
+			FROM t_programvolume 
+		WHERE id = #{id}
+	</delete>		
+</mapper>

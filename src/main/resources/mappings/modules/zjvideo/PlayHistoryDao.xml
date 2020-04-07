@@ -1,0 +1,431 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.zjvideo.dao.PlayHistoryDao">
+    
+	<sql id="playHistoryColumns">
+		a.id AS "id",
+		a.programid AS "programid",
+		a.programvolumeid AS "programvolumeid",
+		a.times AS "times",
+		a.studentid AS "studentid",
+		a.nickname AS "nickname",
+		a.addtime AS "addtime",
+		a.edittime AS "edittime",
+		a.slock AS "slock",
+		a.realname AS "realname",
+		a.type AS "type",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		s.realname AS "student.realname",
+		s.studentno AS "student.studentno",
+		h.realname AS "teacher.realname",
+		h.teacherno AS "teacher.teacherno",
+		t.name AS "program.name",
+		p.name AS "programVolume.name"		
+	</sql>
+	
+	<sql id="playStaticsHistoryColumns">
+		count(a.id) AS "count",
+		a.programid AS "programid",
+		t.name AS "program.name",
+		t.actor AS "program.actor",
+		t.teacherno AS "program.teacherno",
+		a.addtime AS "addtime"
+	</sql>
+		
+	<sql id="playStaticsStudentHistoryColumns">
+		count(a.id) AS "count",
+		a.programid AS "programid",
+		s.realname AS "student.realname",
+		s.studentno AS "student.studentno",
+		a.addtime AS "addtime",
+		a.type AS "type",
+		a.studentid AS "studentid"
+	</sql>
+			
+	<sql id="playStaticsTeacherHistoryColumns">
+		count(a.id) AS "count",
+		a.programid AS "programid",
+		t.name AS "program.name",
+		t.actor AS "program.actor",
+		t.teacherno AS "program.teacherno",
+		a.addtime AS "addtime",
+		a.type AS "type"
+	</sql>				
+				
+	<sql id="playHistoryJoins">
+	</sql>
+    
+	<select id="get" resultType="PlayHistory">
+		SELECT 
+			<include refid="playHistoryColumns"/>
+		FROM t_playhistory a
+		<include refid="playHistoryJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<!-- 关联信息查询 -->
+	<sql id="playHistoryJoinsQuery">
+		LEFT JOIN t_program t ON t.id=a.programid
+		LEFT JOIN t_student s ON s.id=a.studentid
+		LEFT JOIN t_teacher h ON h.id=a.studentid
+		LEFT JOIN t_programvolume p ON p.id=a.programvolumeid
+	</sql>
+	
+	<sql id="playStaticsHistoryJoinsQuery">
+		LEFT JOIN t_program t ON t.id=a.programid
+	</sql>
+	
+	<sql id="playStaticsStudentHistoryJoinsQuery">
+		LEFT JOIN t_student s ON s.id=a.studentid
+	</sql>
+	
+	<sql id="playStaticsTeacherHistoryJoinsQuery">
+		LEFT JOIN t_program t ON t.id=a.programid
+	</sql>
+			
+	<select id="findList" resultType="PlayHistory">
+		SELECT 
+			<include refid="playHistoryColumns"/>
+		FROM t_playhistory a
+		<include refid="playHistoryJoinsQuery"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="type != null and type != '' and type != 3">
+				AND a.type = #{type}
+			</if>
+			<if test="program != null and program.name != null and program.name != ''">
+				AND t.name LIKE 
+					<if test="dbName == 'oracle'">'%'||#{program.name}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{program.name}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{program.name},'%')</if>				
+			</if>
+			<if test="student != null and student.realname != null and student.realname != ''">
+				AND s.realname LIKE 
+					<if test="dbName == 'oracle'">'%'||#{student.realname}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{student.realname}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{student.realname},'%')</if>	
+				OR h.realname LIKE	
+					<if test="dbName == 'oracle'">'%'||#{student.realname}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{student.realname}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{student.realname},'%')</if>							
+			</if>
+			<if test="student != null and student.studentno != null and student.studentno != ''">
+				AND s.studentno LIKE 
+					<if test="dbName == 'oracle'">'%'||#{student.studentno}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{student.studentno}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{student.studentno},'%')</if>				
+				OR h.teacherno LIKE
+					<if test="dbName == 'oracle'">'%'||#{student.studentno}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{student.studentno}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{student.studentno},'%')</if>	
+			</if>			
+			<choose>
+				<when test="addtime != null and addtime != '' and edittime != null and edittime != ''">
+					AND (a.addtime between #{addtime} AND #{edittime})
+				</when>
+				<when test="addtime != null and addtime != '' ">
+					AND a.addtime <![CDATA[ < ]]> 0
+				</when>				
+				<otherwise>
+				</otherwise>
+			</choose>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findStatisticsPlayHistoryList" resultType="PlayHistory">
+		SELECT 
+			<include refid="playStaticsHistoryColumns"/>
+		FROM t_playhistory a
+		<include refid="playStaticsHistoryJoinsQuery"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="type != null and type != '' and type != 3">
+				AND a.type = #{type}
+			</if>
+			<if test="program != null and program.name != null and program.name != ''">
+				AND t.name LIKE 
+					<if test="dbName == 'oracle'">'%'||#{program.name}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{program.name}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{program.name},'%')</if>				
+			</if>
+			<if test="program != null and program.teacherno != null and program.teacherno != ''">
+				AND t.teacherno LIKE 
+					<if test="dbName == 'oracle'">'%'||#{program.teacherno}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{program.teacherno}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{program.teacherno},'%')</if>				
+			</if>			
+			<!-- <if test="student != null and student.realname != null and student.realname != ''">
+				AND s.realname LIKE 
+					<if test="dbName == 'oracle'">'%'||#{student.realname}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{student.realname}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{student.realname},'%')</if>	
+				OR h.realname LIKE	
+					<if test="dbName == 'oracle'">'%'||#{student.realname}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{student.realname}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{student.realname},'%')</if>							
+			</if>
+			<if test="student != null and student.studentno != null and student.studentno != ''">
+				AND s.studentno LIKE 
+					<if test="dbName == 'oracle'">'%'||#{student.studentno}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{student.studentno}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{student.studentno},'%')</if>				
+				OR h.teacherno LIKE
+					<if test="dbName == 'oracle'">'%'||#{student.studentno}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{student.studentno}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{student.studentno},'%')</if>	
+			</if>	 -->		
+<!-- 			<if test="addtime != null and addtime != '' and edittime != null and edittime != ''">
+				AND a.addtime <![CDATA[ >= ]]> #{addtime} AND a.addtime <![CDATA[ <= ]]> #{edittime})
+			</if> -->
+<!-- 			<if test="edittime != null and edittime != ''">
+				AND a.addtime <![CDATA[ <= ]]> #{edittime})
+			</if>	 -->		
+			<choose>
+				<when test="addtime != null and addtime != '' and edittime != null and edittime != ''">
+					AND (a.addtime between #{addtime} AND #{edittime})
+				</when>
+				<when test="addtime != null and addtime != '' ">
+					AND a.addtime <![CDATA[ < ]]> 0
+				</when>				
+				<otherwise>
+				</otherwise>
+			</choose>			
+		</where>
+			group by a.programid
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findStatisticsStudentPlayHistoryList" resultType="PlayHistory">
+		SELECT 
+			<include refid="playStaticsStudentHistoryColumns"/>
+		FROM t_playhistory a
+		<include refid="playStaticsStudentHistoryJoinsQuery"/>
+		<where>
+			a.type = 1
+	<!-- 		<if test="type != null and type != '' and type != 3">
+				AND a.type = #{type}
+			</if> -->
+			<if test="student != null and student.realname != null and student.realname != ''">
+				AND s.name LIKE 
+					<if test="dbName == 'oracle'">'%'||#{student.realname}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{student.realname}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{student.realname},'%')</if>				
+			</if>
+			<if test="student != null and student.studentno != null and student.studentno != ''">
+				AND s.studentno LIKE 
+					<if test="dbName == 'oracle'">'%'||#{student.studentno}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{student.studentno}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{student.studentno},'%')</if>				
+			</if>			
+			<!-- <if test="student != null and student.realname != null and student.realname != ''">
+				AND s.realname LIKE 
+					<if test="dbName == 'oracle'">'%'||#{student.realname}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{student.realname}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{student.realname},'%')</if>	
+				OR h.realname LIKE	
+					<if test="dbName == 'oracle'">'%'||#{student.realname}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{student.realname}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{student.realname},'%')</if>							
+			</if>
+			<if test="student != null and student.studentno != null and student.studentno != ''">
+				AND s.studentno LIKE 
+					<if test="dbName == 'oracle'">'%'||#{student.studentno}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{student.studentno}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{student.studentno},'%')</if>				
+				OR h.teacherno LIKE
+					<if test="dbName == 'oracle'">'%'||#{student.studentno}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{student.studentno}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{student.studentno},'%')</if>	
+			</if>	 -->		
+			<choose>
+				<when test="addtime != null and addtime != '' and edittime != null and edittime != ''">
+					AND (a.addtime between #{addtime} AND #{edittime})
+				</when>
+				<when test="addtime != null and addtime != '' ">
+					AND a.addtime <![CDATA[ < ]]> 0
+				</when>				
+				<otherwise>
+				</otherwise>
+			</choose>
+		</where>
+			group by a.studentid
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findStatisticsTeacherPlayHistoryList" resultType="PlayHistory">
+		SELECT 
+			<include refid="playStaticsTeacherHistoryColumns"/>
+		FROM t_playhistory a
+		<include refid="playStaticsTeacherHistoryJoinsQuery"/>
+		<where>
+			a.type = 2
+<!-- 			<if test="type != null and type != '' and type != 3">
+				AND a.type = #{type}
+			</if> -->
+			<if test="program != null and program.name != null and program.name != ''">
+				AND t.name LIKE 
+					<if test="dbName == 'oracle'">'%'||#{program.name}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{program.name}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{program.name},'%')</if>				
+			</if>
+			<if test="program != null and program.teacherno != null and program.teacherno != ''">
+				AND t.teacherno LIKE 
+					<if test="dbName == 'oracle'">'%'||#{program.teacherno}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{program.teacherno}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{program.teacherno},'%')</if>				
+			</if>			
+			<!-- <if test="student != null and student.realname != null and student.realname != ''">
+				AND s.realname LIKE 
+					<if test="dbName == 'oracle'">'%'||#{student.realname}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{student.realname}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{student.realname},'%')</if>	
+				OR h.realname LIKE	
+					<if test="dbName == 'oracle'">'%'||#{student.realname}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{student.realname}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{student.realname},'%')</if>							
+			</if>
+			<if test="student != null and student.studentno != null and student.studentno != ''">
+				AND s.studentno LIKE 
+					<if test="dbName == 'oracle'">'%'||#{student.studentno}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{student.studentno}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{student.studentno},'%')</if>				
+				OR h.teacherno LIKE
+					<if test="dbName == 'oracle'">'%'||#{student.studentno}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{student.studentno}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{student.studentno},'%')</if>	
+			</if>	 -->		
+			<choose>
+				<when test="addtime != null and addtime != '' and edittime != null and edittime != ''">
+					AND (a.addtime between #{addtime} AND #{edittime})
+				</when>
+				<when test="addtime != null and addtime != '' ">
+					AND a.addtime <![CDATA[ < ]]> 0
+				</when>				
+				<otherwise>
+				</otherwise>
+			</choose>
+<!-- 			<if test="edittime != null and edittime != ''">
+				AND a.addtime <![CDATA[ <= ]]> #{edittime})
+			</if> -->	
+		</where>
+			group by a.programid
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>		
+		
+	<select id="findAllList" resultType="PlayHistory">
+		SELECT 
+			<include refid="playHistoryColumns"/>
+		FROM t_playhistory a
+		<include refid="playHistoryJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO t_playhistory(
+			id,
+			programid,
+			programvolumeid,
+			times,
+			studentid,
+			nickname,
+			addtime,
+			edittime,
+			slock,
+			realname,
+			type,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag
+		) VALUES (
+			#{id},
+			#{programid},
+			#{programvolumeid},
+			#{times},
+			#{studentid},
+			#{nickname},
+			#{addtime},
+			#{edittime},
+			#{slock},
+			#{realname},
+			#{type},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE t_playhistory SET 	
+			programid = #{programid},
+			programvolumeid = #{programvolumeid},
+			times = #{times},
+			studentid = #{studentid},
+			nickname = #{nickname},
+			addtime = #{addtime},
+			edittime = #{edittime},
+			slock = #{slock},
+			realname = #{realname},
+			type = #{type},
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		UPDATE t_playhistory SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+</mapper>

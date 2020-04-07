@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.zjvideo.dao.NodeServerGroupDao">
+    
+	<sql id="nodeServerGroupColumns">
+		a.id AS "id",
+		a.groupname AS "groupname",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag"
+	</sql>
+	
+	<sql id="nodeServerGroupJoins">
+	</sql>
+    
+	<select id="get" resultType="NodeServerGroup">
+		SELECT 
+			<include refid="nodeServerGroupColumns"/>
+		FROM t_nodeservergroup a
+		<include refid="nodeServerGroupJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="NodeServerGroup">
+		SELECT 
+			<include refid="nodeServerGroupColumns"/>
+		FROM t_nodeservergroup a
+		<include refid="nodeServerGroupJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="groupname != null and groupname != ''">
+				AND a.groupname LIKE 
+					<if test="dbName == 'oracle'">'%'||#{groupname}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{groupname}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{groupname},'%')</if>
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="NodeServerGroup">
+		SELECT 
+			<include refid="nodeServerGroupColumns"/>
+		FROM t_nodeservergroup a
+		<include refid="nodeServerGroupJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO t_nodeservergroup(
+			id,
+			groupname,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag
+		) VALUES (
+			default,
+			#{groupname},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE t_nodeservergroup SET 	
+			groupname = #{groupname},
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		UPDATE t_nodeservergroup SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	<!-- 删除节点组关联表数据 -->
+	<delete id="deleteNodeGroup">
+		DELETE FROM t_nodegroup WHERE groupid = #{id}
+	</delete>
+	
+	<!-- 插入节点组关联表数据 -->
+	<insert id="insertNodeGroup">
+		INSERT INTO t_nodegroup(nodeid, groupid,station_flag)
+		<foreach collection="nodeServerList" item="nodeServer" separator=" union all ">
+			SELECT #{nodeServer.id}, #{id}, #{nodeServer.stationFlag} FROM dual
+		</foreach>
+	</insert>	
+	
+	<!-- 查询组下面的服务器列表 -->
+	<sql id="nodeGroupColumns">
+		a.id AS "id",
+		a.groupname AS "groupname",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		g.nodeid AS "nodeServer.id",
+		g.station_flag AS "stationFlag"
+	</sql>
+	
+	<sql id="nodeServerJoinsGroupQuery">
+		JOIN t_nodegroup g ON g.groupid = a.id
+	</sql>	
+	
+	<select id="queryOwnNodeServerList" resultType="NodeServerGroup">
+		SELECT 
+			<include refid="nodeGroupColumns"/>
+		FROM t_nodeservergroup a
+		<include refid="nodeServerJoinsGroupQuery"/>
+		where a.id = #{id}
+	</select>	
+	<!-- End -->
+</mapper>

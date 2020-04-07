@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<template>
+	<name>controller</name>
+	<filePath>src/main/java/${packageName}/${moduleName}/api/${subModuleName}</filePath>
+	<fileName>${ClassName}ApiController.java</fileName>
+	<content><![CDATA[
+/**
+ * 
+ */
+package ${packageName}.${moduleName}.api<#if subModuleName != "">.${subModuleName}</#if>;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.util.Assert;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+import com.thinkgem.jeesite.common.annotation.ApiAuth;
+import com.thinkgem.jeesite.common.persistence.Page;
+import com.thinkgem.jeesite.common.web.BaseController;
+import com.thinkgem.jeesite.modules.${moduleName}.api.common.ExceptionUtil;
+import com.thinkgem.jeesite.modules.${moduleName}.api.common.RequestUtil;
+import com.thinkgem.jeesite.modules.${moduleName}.api.common.RestErrorCode;
+import com.thinkgem.jeesite.modules.${moduleName}.api.common.RestResponse;
+import ${packageName}.${moduleName}.entity<#if subModuleName != "">.${subModuleName}</#if>.${ClassName};
+import ${packageName}.${moduleName}.service<#if subModuleName != "">.${subModuleName}</#if>.${ClassName}Service;
+
+/**
+ * ${functionName}ApiController
+ * @author ${functionAuthor}
+ * @version ${functionVersion}
+ */
+@Controller
+@RequestMapping(value = "api/${className}")
+public class ${ClassName}ApiController extends BaseController {
+
+	@Autowired
+	private ${ClassName}Service ${className}Service;
+	
+	@ApiAuth
+	@RequestMapping(value ="/get")
+    @ResponseBody
+	public RestResponse get(HttpServletRequest request,HttpServletResponse response){
+		RestResponse restResponse = new RestResponse();
+        try {
+			String id = request.getParameter("id");
+			${ClassName} ${className} = ${className}Service.get(id);
+			Assert.notNull(${className}, "id错误");
+			restResponse.setData(${className});
+		} catch (Exception ex) {
+	    	restResponse=ExceptionUtil.dealException(ex);
+	    }
+	    return restResponse;
+	}
+	
+	@ApiAuth //必须登录
+	@RequestMapping(value = {"list"})
+	@ResponseBody
+	public RestResponse list(HttpServletRequest request, HttpServletResponse response, Model model) {
+		RestResponse restResponse = new RestResponse();
+        try {
+        	${ClassName} ${className}=RequestUtil.form(${ClassName}.class, request);
+        	String uid =request.getParameter("uid");					//用户ID	
+			Page<${ClassName}> page = ${className}Service.findPage(new Page<${ClassName}>(request, response), ${className}); 
+			page.isWebservicePageFlag = true;
+  	      return new RestResponse(page);
+        } catch (Exception ex) {
+        	restResponse=ExceptionUtil.dealException(ex);
+        }
+        return restResponse;
+	}
+	 
+	@ApiAuth
+	@RequestMapping(value ="/save")
+	@ResponseBody
+	public RestResponse save(HttpServletRequest request,HttpServletResponse response) {
+		RestResponse restResponse = new RestResponse();
+        try {
+        	${ClassName} ${className}=RequestUtil.form(${ClassName}.class, request);
+        	${className}Service.save(${className});
+        	return new RestResponse(${className});
+        } catch (Exception ex) {
+        	restResponse=ExceptionUtil.dealException(ex);
+        }
+        return restResponse;
+    }
+	
+	@ApiAuth
+	@RequestMapping(value ="/delete")
+	@ResponseBody
+	public RestResponse delete(HttpServletRequest request,HttpServletResponse response) throws  Exception{
+		RestResponse restResponse = new RestResponse();
+        try {
+        	${ClassName} ${className}Model=RequestUtil.form(${ClassName}.class, request);
+        	${className}Service.delete(${className}Model);
+        	return new RestResponse(RestErrorCode.SUCESS_CODE, "删除成功");
+        } catch (Exception ex) {
+        	restResponse=ExceptionUtil.dealException(ex);
+        }
+        return restResponse;
+	}
+}]]>
+	</content>
+</template>

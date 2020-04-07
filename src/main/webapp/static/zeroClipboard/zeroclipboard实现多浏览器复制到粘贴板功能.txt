@@ -1,0 +1,43 @@
+zeroclipboard实现多浏览器复制到粘贴板功能（单个复制按钮和多个复制按钮） 为了更好的用户体验，现在很多网站中文本框的内容只需要点击复制按钮这样就能把内容复制到粘贴板了；
+出于兼容性的考虑，基本上都是通过zeroclipboard来实现.首先要下载zeroclipboard，解压后把ZeroClipboard.js和ZeroClipboard.swf、ZeroClipboard10.swf(“为了flash10”)放到项目中，可以通过ZeroClipboard.setMoviePath( '/ZeroClipboard.swf' )方法来加载swf;
+下面是整理的代码（也是通过 网上查找整理的）
+（单个复制按钮）：
+html:
+<input type="text" value="text" id="copy_txt"/><a href="javascirpt:;" id="copy_btn">复制</a>
+js:
+<script language="JavaScript">
+    ZeroClipboard.setMoviePath( 'ZeroClipboard.swf' );  //和html不在同一目录需设置setMoviePath
+    ZeroClipboard.setMoviePath( 'ZeroClipboard10.swf' );
+    var clip = new ZeroClipboard.Client();   //创建新的Zero Clipboard对象
+    clip.setText( '' ); // will be set later on mouseDown   //清空剪贴板
+    clip.setHandCursor( true );      //设置鼠标移到复制框时的形状
+    clip.setCSSEffects( true );          //启用css
+    clip.addEventListener( 'complete', function(client, text) {     //复制完成后的监听事件
+          alert("aa")      
+          clip.hide();                                          // 复制一次后，hide()使复制按钮失效，防止重复计算使用次数
+     } );
+   clip.addEventListener( 'mouseDown', function(client) {
+          clip.setText( document.getElementById('copy_txt').value );
+    } );
+    clip.glue( 'copy_btn' );
+</script>
+多个复制按钮：
+<input type="text" value="text" id="copy_txt0"/><a href="javascirpt:;" id="copy_btn0" data='0' class="copyBtn">复制</a>
+<input type="text" value="text" id="copy_txt1"/><a href="javascirpt:;" id="copy_btn1" data='1' class="copyBtn">复制</a>
+<input type="text" value="text" id="copy_txt2"/><a href="javascirpt:;" id="copy_btn2" data='2' class="copyBtn">复制</a>
+js：
+<script language="JavaScript">
+$(".copyBtn").each(function(i){
+        var id = $(this).attr('data');
+        var clip=null;
+        clip = new ZeroClipboard.Client();
+        ZeroClipboard.setMoviePath( 'ZeroClipboard.swf' );  //和html不在同一目录需设置setMoviePath
+        ZeroClipboard.setMoviePath( 'ZeroClipboard10.swf' );
+        clip.setHandCursor( true );
+        clip.setText( $("#copy_txt"+id).val() );
+        clip.addEventListener('complete', function (client, text) {
+          alert( "恭喜复制成功" );
+        });
+        clip.glue( 'copy_btn'+id);
+  });
+</script>

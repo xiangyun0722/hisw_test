@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.zjvideo.dao.PicDao">
+    
+	<sql id="picColumns">
+		a.id AS "id",
+		a.source AS "source",
+		a.url AS "url",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks"
+	</sql>
+	
+	<sql id="picJoins">
+	</sql>
+    
+	<select id="get" resultType="Pic">
+		SELECT 
+			<include refid="picColumns"/>
+		FROM t_pic a
+		<include refid="picJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="Pic">
+		SELECT 
+			<include refid="picColumns"/>
+		FROM t_pic a
+		<include refid="picJoins"/>
+		<where>
+			
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="Pic">
+		SELECT 
+			<include refid="picColumns"/>
+		FROM t_pic a
+		<include refid="picJoins"/>
+		<where>
+			
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert" useGeneratedKeys="true" keyProperty="id" keyColumn="id">
+		INSERT INTO t_pic(
+			source,
+			url,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks
+		) VALUES (
+			#{source},
+			#{url},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE t_pic SET 	
+			source = #{source},
+			url = #{url},
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		DELETE FROM t_pic
+		WHERE id = #{id}
+	</update>
+	
+</mapper>

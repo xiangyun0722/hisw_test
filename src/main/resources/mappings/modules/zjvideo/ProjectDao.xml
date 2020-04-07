@@ -1,0 +1,201 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.zjvideo.dao.ProjectDao">
+    
+	<sql id="projectColumns">
+		a.id AS "id",
+		a.companyid AS "companyid",
+		a.parent_id AS "parent.id",
+		a.parent_ids AS "parentIds",
+		a.name AS "name",
+		a.sort AS "sort",
+		a.code AS "code",
+		a.type AS "type",
+		a.ftpautopath AS "ftpautopath",
+		a.ftpmanupath AS "ftpmanupath",
+		a.repositorypath AS "repositorypath",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag"
+	</sql>
+	
+	<!-- 系统登录用户查询 -->
+	<sql id="projectUserColumns">
+		a.id AS "id",
+		a.companyid AS "companyid",
+		a.parent_id AS "parent.id",
+		a.parent_ids AS "parentIds",
+		a.name AS "name",
+		a.sort AS "sort",
+		a.code AS "code",
+		a.type AS "type",
+		a.ftpautopath AS "ftpautopath",
+		a.ftpmanupath AS "ftpmanupath",
+		a.repositorypath AS "repositorypath",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		s.login_name AS "loginName",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag"
+	</sql>	
+	
+	<sql id="projectUserJoins">
+		LEFT JOIN sys_user s ON s.id = a.create_by
+	</sql>
+	<!-- End 系统登录用户查询 -->	
+	
+	<sql id="projectJoins">
+	</sql>
+    
+	<select id="get" resultType="Project">
+		SELECT 
+			<include refid="projectColumns"/>
+		FROM t_project a
+		<include refid="projectJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="Project">
+		SELECT 
+			<include refid="projectUserColumns"/>
+		FROM t_project a
+		<include refid="projectUserJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="parent != null and parent.id != null and parent.id != ''">
+				AND a.parent_id = #{parent.id}
+			</if>
+			<if test="parentIds != null and parentIds != ''">
+				AND a.parent_ids LIKE 
+					<if test="dbName == 'oracle'">'%'||#{parentIds}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{parentIds}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{parentIds},'%')</if>
+			</if>
+			<if test="name != null and name != ''">
+				AND a.name LIKE 
+					<if test="dbName == 'oracle'">'%'||#{name}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{name}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{name},'%')</if>
+			</if>
+			<if test="companyid != null and companyid != ''">
+				AND a.companyid = #{companyid}
+			</if>			
+		</where>
+		ORDER BY a.create_date DESC
+	</select>
+	
+	<select id="findAllList" resultType="Project">
+		SELECT 
+			<include refid="projectColumns"/>
+		FROM t_project a
+		<include refid="projectJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>
+		ORDER BY a.sort ASC
+	</select>
+	
+	<select id="findByParentIdsLike" resultType="Project">
+		SELECT
+			a.id,
+			a.parent_id AS "parent.id",
+			a.parent_ids
+		FROM t_project a
+		<include refid="projectJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			AND a.parent_ids LIKE #{parentIds}
+		</where>
+		ORDER BY a.sort ASC
+	</select>
+	
+	<insert id="insert" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO t_project(
+			id,
+			companyid,
+			parent_id,
+			parent_ids,
+			name,
+			sort,
+			code,
+			type,
+			ftpautopath,
+			ftpmanupath,
+			repositorypath,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag
+		) VALUES (
+			default,
+			#{companyid},
+			#{parent.id},
+			#{parentIds},
+			#{name},
+			#{sort},
+			#{code},
+			#{type},
+			#{ftpautopath},
+			#{ftpmanupath},
+			#{repositorypath},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE t_project SET 	
+			companyid = #{companyid},
+			parent_id = #{parent.id},
+			parent_ids = #{parentIds},
+			name = #{name},
+			sort = #{sort},
+			code = #{code},
+			type = #{type},
+			ftpautopath = #{ftpautopath},
+			ftpmanupath = #{ftpmanupath},
+			repositorypath = #{repositorypath},
+			create_by = #{createBy.id},
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="updateParentIds">
+		UPDATE t_project SET 
+			parent_id = #{parent.id}, 
+			parent_ids = #{parentIds}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		UPDATE t_project SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id} OR parent_ids LIKE concat('%',#{id},'%')
+	</update>
+	
+	<update id="deleteTemplates">
+		DELETE from t_project_template  WHERE projectid = #{id} 
+	</update>
+	
+	<insert id="insertTemplates">
+		INSERT INTO t_project_template(projectid, templateid)
+		<foreach collection="templatesids" item="ids" separator=" union all ">
+			SELECT #{id} , #{ids}  FROM dual
+		</foreach>
+	</insert>
+	
+	
+</mapper>

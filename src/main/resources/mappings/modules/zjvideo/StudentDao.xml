@@ -1,0 +1,214 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.zjvideo.dao.StudentDao">
+    
+	<sql id="studentColumns">
+		a.id AS "id",
+		a.studentno AS "studentno",
+		a.realname AS "realname",
+		a.passwod AS "passwod",
+		a.sex AS "sex",
+		a.age AS "age",
+		a.picurl AS "picurl",
+		a.major AS "major",
+		a.mobile AS "mobile",
+		a.address AS "address",
+		a.logintimes AS "logintimes",
+		a.lastlogintime AS "lastlogintime",
+		a.lastloginip AS "lastloginip",
+		a.recommend AS "recommend",
+		a.addtime AS "addtime",
+		a.edittime AS "edittime",
+		a.slock AS "slock",
+		a.studentid AS "studentid",
+		a.adflag AS "adflag",
+		a.detail AS "detail",
+		a.count AS "count",
+		a.profession AS "profession",
+		a.district AS "district",
+		a.signature AS "signature",
+		a.nickname AS "nickname",
+		a.mailbox AS "mailbox",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag"
+	</sql>
+	
+	<sql id="studentJoins">
+	</sql>
+    
+	<select id="get" resultType="Student">
+		SELECT 
+			<include refid="studentColumns"/>
+		FROM t_student a
+		<include refid="studentJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="Student">
+		SELECT 
+			<include refid="studentColumns"/>
+		FROM t_student a
+		<include refid="studentJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="studentno != null and studentno != ''">
+				AND a.studentno LIKE 
+					<if test="dbName == 'oracle'">'%'||#{studentno}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{studentno}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{studentno},'%')</if>
+			</if>
+			<if test="realname != null and realname != ''">
+				AND a.realname LIKE 
+					<if test="dbName == 'oracle'">'%'||#{realname}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{realname}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{realname},'%')</if>
+			</if>
+			<if test="recommend != null and recommend != '' and recommend != 3">
+				AND a.recommend = #{recommend}
+			</if>
+			<if test="adflag != null and adflag != '' and adflag != 2">
+				AND a.adflag = #{adflag}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="Student">
+		SELECT 
+			<include refid="studentColumns"/>
+		FROM t_student a
+		<include refid="studentJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO t_student(
+			id,
+			studentno,
+			realname,
+			passwod,
+			sex,
+			age,
+			picurl,
+			major,
+			mobile,
+			address,
+			logintimes,
+			lastlogintime,
+			lastloginip,
+			recommend,
+			addtime,
+			edittime,
+			slock,
+			studentid,
+			adflag,
+			detail,
+			count,
+			profession,
+			district,
+			signature,
+			nickname,
+			mailbox,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag
+		) VALUES (
+			default,
+			#{studentno},
+			#{realname},
+			#{passwod},
+			#{sex},
+			#{age},
+			#{picurl},
+			#{major},
+			#{mobile},
+			#{address},
+			#{logintimes},
+			#{lastlogintime},
+			#{lastloginip},
+			#{recommend},
+			#{addtime},
+			#{edittime},
+			#{slock},
+			#{studentid},
+			#{adflag},
+			#{detail},
+			#{count},
+			#{profession},
+			#{district},
+			#{signature},
+			#{nickname},
+			#{mailbox},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE t_student SET 	
+			studentno = #{studentno},
+			realname = #{realname},
+			passwod = #{passwod},
+			sex = #{sex},
+			age = #{age},
+			picurl = #{picurl},
+			major = #{major},
+			mobile = #{mobile},
+			address = #{address},
+			logintimes = #{logintimes},
+			lastlogintime = #{lastlogintime},
+			lastloginip = #{lastloginip},
+			recommend = #{recommend},
+			addtime = #{addtime},
+			edittime = #{edittime},
+			slock = #{slock},
+			studentid = #{studentid},
+			adflag = #{adflag},
+			detail = #{detail},
+			count = #{count},
+			profession = #{profession},
+			district = #{district},
+			signature = #{signature},
+			nickname = #{nickname},
+			mailbox = #{mailbox},
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		UPDATE t_student SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+</mapper>

@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.meeting.dao.MeetingJoinUserDao">
+    
+	<sql id="meetingJoinUserColumns">
+		a.id AS "id",
+		a.name AS "name",
+		a.ip AS "ip",
+		a.up_operation_time AS "upOperationTime",
+		a.operation_time AS "operationTime",
+		a.page_index AS "pageIndex",
+		a.countries AS "countries",
+		a.provinces AS "provinces",
+		a.city AS "city",
+		a.network AS "network",
+		a.start_time AS "startTime",
+		a.end_time AS "endTime",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		a.sessionid AS "sessionid"
+	</sql>
+	
+	<sql id="meetingJoinUserJoins">
+	</sql>
+    
+	<select id="get" resultType="MeetingJoinUser">
+		SELECT 
+			<include refid="meetingJoinUserColumns"/>
+		FROM meeting_join_user a
+		<include refid="meetingJoinUserJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="MeetingJoinUser">
+		SELECT 
+			<include refid="meetingJoinUserColumns"/>
+		FROM meeting_join_user a
+		<include refid="meetingJoinUserJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="name != null and name != ''">
+				AND a.name LIKE 
+					<if test="dbName == 'oracle'">'%'||#{name}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{name}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{name},'%')</if>
+			</if>
+			<if test="ip != null and ip != ''">
+				AND a.ip = #{ip}
+			</if>
+			<if test="startTime != null and startTime != ''">
+				AND a.start_time = #{startTime}
+			</if>
+			<if test="endTime != null and endTime != ''">
+				AND a.end_time = #{endTime}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="MeetingJoinUser">
+		SELECT 
+			<include refid="meetingJoinUserColumns"/>
+		FROM meeting_join_user a
+		<include refid="meetingJoinUserJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO meeting_join_user(
+			id,
+			name,
+			ip,
+			up_operation_time,
+			operation_time,
+			page_index,
+			countries,
+			provinces,
+			city,
+			network,
+			start_time,
+			end_time,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag,
+			sessionid
+		) VALUES (
+			#{id},
+			#{name},
+			#{ip},
+			#{upOperationTime},
+			#{operationTime},
+			#{pageIndex},
+			#{countries},
+			#{provinces},
+			#{city},
+			#{network},
+			#{startTime},
+			#{endTime},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag},
+			#{sessionid}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE meeting_join_user SET 	
+			name = #{name},
+			ip = #{ip},
+			up_operation_time = #{upOperationTime},
+			operation_time = #{operationTime},
+			page_index = #{pageIndex},
+			countries = #{countries},
+			provinces = #{provinces},
+			city = #{city},
+			network = #{network},
+			start_time = #{startTime},
+			end_time = #{endTime},
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks},
+			sessionid = #{sessionid}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		UPDATE meeting_join_user SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+</mapper>

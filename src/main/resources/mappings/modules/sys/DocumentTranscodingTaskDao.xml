@@ -1,0 +1,211 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.sys.dao.DocumentTranscodingTaskDao">
+    
+	<sql id="documentTranscodingTaskColumns">
+		a.id AS "id",
+		a.deal_host_ip AS "dealHostIp",
+		a.business_id AS "businessId",
+		a.original_name AS "originalName",
+		a.filepath AS "filepath",
+		a.fileJson AS "fileJson",
+		a.length AS "length",
+		a.status AS "status",
+		a.total_page_number AS "totalPageNumber",
+		a.one_page_one_swf_flag AS "onePageOneSwfFlag",
+		a.swfs_path AS "swfsPath",
+		a.swf_path AS "swfPath",
+		a.images_path AS "imagesPath",
+		a.js_path AS "jsPath",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.child_thread_total AS "childThreadTotal",
+		a.update_by AS "updateBy.id",
+		a.child_thread_success AS "childThreadSuccess",
+		a.child_thread_faill AS "childThreadFaill",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag"
+	</sql>
+	
+	<sql id="documentTranscodingTaskJoins">
+	</sql>
+    
+	<select id="get" resultType="DocumentTranscodingTask">
+		SELECT 
+			<include refid="documentTranscodingTaskColumns"/>
+		FROM sys_document_transcoding_task a
+		<include refid="documentTranscodingTaskJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findOneByBusinessId" resultType="DocumentTranscodingTask">
+		SELECT 
+			<include refid="documentTranscodingTaskColumns"/>
+		FROM sys_document_transcoding_task a
+		<include refid="documentTranscodingTaskJoins"/>
+		WHERE a.businessId = #{businessId}
+	</select>
+	
+	
+	<select id="findList" resultType="DocumentTranscodingTask">
+		SELECT 
+			<include refid="documentTranscodingTaskColumns"/>
+		FROM sys_document_transcoding_task a
+		<include refid="documentTranscodingTaskJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="dealHostIp != null and dealHostIp != ''">
+				AND a.deal_host_ip LIKE 
+					<if test="dbName == 'oracle'">'%'||#{dealHostIp}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{dealHostIp}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{dealHostIp},'%')</if>
+			</if>
+			<if test="businessId != null and businessId != ''">
+				AND a.business_id = #{businessId}
+			</if>
+			<if test="originalName != null and originalName != ''">
+				AND a.original_name LIKE 
+					<if test="dbName == 'oracle'">'%'||#{originalName}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{originalName}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{originalName},'%')</if>
+			</if>
+			<if test="filepath != null and filepath != ''">
+				AND a.filepath LIKE 
+					<if test="dbName == 'oracle'">'%'||#{filepath}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{filepath}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{filepath},'%')</if>
+			</if>
+			<if test="status != null and status != ''">
+				AND a.status = #{status}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	
+	<select id="findListByIds" resultType="DocumentTranscodingTask">
+		SELECT 
+			a.id AS "id",
+			a.status AS "status"
+		FROM sys_document_transcoding_task a
+		<where>
+			<if test="ids != null and ids != ''">
+				AND a.id in (${ids}) 
+			</if>
+		</where>
+		<choose>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="DocumentTranscodingTask">
+		SELECT 
+			<include refid="documentTranscodingTaskColumns"/>
+		FROM sys_document_transcoding_task a
+		<include refid="documentTranscodingTaskJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO sys_document_transcoding_task(
+			id,
+			deal_host_ip,
+			business_id,
+			original_name,
+			filepath,
+			fileJson,
+			length,
+			status,
+			total_page_number,
+			one_page_one_swf_flag,
+			swfs_path,
+			swf_path,
+			images_path,
+			js_path,
+			create_by,
+			create_date,
+			child_thread_total,
+			update_by,
+			child_thread_success,
+			child_thread_faill,
+			update_date,
+			remarks,
+			del_flag
+		) VALUES (
+			#{id},
+			#{dealHostIp},
+			#{businessId},
+			#{originalName},
+			#{filepath},
+			#{fileJson},
+			#{length},
+			#{status},
+			#{totalPageNumber},
+			#{onePageOneSwfFlag},
+			#{swfsPath},
+			#{swfPath},
+			#{imagesPath},
+			#{jsPath},
+			#{createBy.id},
+			#{createDate},
+			#{childThreadTotal},
+			#{updateBy.id},
+			#{childThreadSuccess},
+			#{childThreadFaill},
+			#{updateDate},
+			#{remarks},
+			#{delFlag}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE sys_document_transcoding_task SET 	
+			deal_host_ip = #{dealHostIp},
+			business_id = #{businessId},
+			original_name = #{originalName},
+			filepath = #{filepath},
+			fileJson = #{fileJson},
+			length = #{length},
+			status = #{status},
+			total_page_number = #{totalPageNumber},
+			one_page_one_swf_flag = #{onePageOneSwfFlag},
+			swfs_path = #{swfsPath},
+			swf_path = #{swfPath},
+			images_path = #{imagesPath},
+			js_path = #{jsPath},
+			child_thread_total = #{childThreadTotal},
+			update_by = #{updateBy.id},
+			child_thread_success = #{childThreadSuccess},
+			child_thread_faill = #{childThreadFaill},
+			update_date = #{updateDate},
+			remarks = #{remarks}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		UPDATE sys_document_transcoding_task SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+</mapper>

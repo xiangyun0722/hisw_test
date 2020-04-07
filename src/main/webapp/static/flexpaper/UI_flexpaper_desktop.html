@@ -1,0 +1,33 @@
+<div id='toolbar1' class='flexpaper_toolbar flexpaper_toolbarstd'>
+<!--    <img src='images/print-icon.gif' class='flexpaper_tbbutton flexpaper_bttnPrint' title='Print' alt='打印' onclick='$FlexPaper("documentViewer").printPaper();' />-->
+    <img src='images/bar.gif' class='flexpaper_tbseparator' alt='' />
+    <img src='images/fit.gif' class='flexpaper_bttnFitWidth flexpaper_tbbutton flexpaper_tbbutton_fitmode flexpaper_fitmode' title='适合宽度' alt='适合宽度' onclick='$FlexPaper("documentViewer").fitWidth()'  />
+    <img src='images/pagefit.gif' class='flexpaper_bttnFitHeight flexpaper_tbbutton flexpaper_tbbutton_fitmode flexpaper_fitmode' title='适合整页' alt='适合整页' onclick='$FlexPaper("documentViewer").fitHeight()'  />
+    <img src='images/flip.gif' class='flexpaper_tbbutton' title='旋转' alt='旋转' onclick='$FlexPaper("documentViewer").rotate()'  />
+    <img src='images/bar.gif' class='flexpaper_tbseparator' alt='' />
+    <img src='images/fullscreen.gif' class='flexpaper_bttnFullScreen flexpaper_tbbutton' title='全屏' alt='全屏' onclick='jQuery("#documentViewer").showFullScreen();'  />
+    <img src='images/bar.gif' class='flexpaper_tbseparator' alt='' />
+    <img src='images/icon-arrow-left.gif' class='flexpaper_bttnPrevPage flexpaper_tbbutton' onclick='$FlexPaper("documentViewer").prevPage()' title='上一页' alt='上一页'/>
+    <input type='text' class='flexpaper_txtPageNumber flexpaper_tbtextinput' style='width:36px;' />
+    <div class='flexpaper_lblTotalPages flexpaper_tblabel'> / </div>
+    <img src='images/icon-arrow-right.gif' class='flexpaper_bttnPrevNext flexpaper_tbbutton' onclick='$FlexPaper("documentViewer").nextPage()' title='下一页' alt='下一页'/>
+    <img src='images/bar.gif' class='flexpaper_tbseparator' alt='' />
+    <img src='images/textselect.gif' class='flexpaper_bttnTextSelect flexpaper_tbbutton' title='选择文本' alt='选择文本' onclick="$FlexPaper('documentViewer').setCurrentCursor('TextSelectorCursor')"/>
+    <img src='images/hand2.gif' class='flexpaper_bttnHand flexpaper_tbbutton flexpaper_tbbutton_pressed' title='' alt='拖动光标'  onclick="$FlexPaper('documentViewer').setCurrentCursor('ArrowCursor')"/>
+    <img src='images/bar.gif' class='flexpaper_tbseparator' alt='' />
+    <input type='text' class='flexpaper_txtSearch flexpaper_tbtextinput' style='width:56px;margin-left:4px;' />
+    <img src='images/find.gif' class='flexpaper_bttnTextSearch flexpaper_tbbutton' onclick='$FlexPaper("documentViewer").searchText(jQuery(this).parent().find(".flexpaper_txtSearch").val());' title='搜索' alt='搜索'/>
+    <img src='images/bar.gif' class='flexpaper_tbseparator' alt='' />
+    <img src='images/loader.gif' class='flexpaper_progress flexpaper_tbloader' alt='' />
+</div>
+
+<script language="javascript">
+    // adjust IE 7 and below for textbox input size
+    var userAgent   = navigator.userAgent.toLowerCase();
+    var ismsie      = /msie/.test(userAgent) && !/opera/.test(userAgent);
+    var browser_v   = (userAgent.match(/.+?(?:rv|it|ra|ie)[\/: ]([\d.]+)(?!.+opera)/) || [])[1];
+
+    if(ismsie && browser_v < 8){
+        jQuery('.flexpaper_tbtextinput').css('height','12px');
+    }
+</script>

@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.zjvideo.dao.NodeGroupDao">
+    
+	<sql id="nodeGroupColumns">
+		a.id AS "id",
+		a.nodeid AS "nodeid",
+		a.groupid AS "groupid",
+		a.station_flag AS "stationFlag",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag"
+	</sql>
+	
+	<sql id="nodeGroupJoins">
+	</sql>
+    
+	<select id="get" resultType="NodeGroup">
+		SELECT 
+			<include refid="nodeGroupColumns"/>
+		FROM t_nodegroup a
+		<include refid="nodeGroupJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="NodeGroup">
+		SELECT 
+			<include refid="nodeGroupColumns"/>
+		FROM t_nodegroup a
+		<include refid="nodeGroupJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="nodeid != null and nodeid != ''">
+				AND a.nodeid = #{nodeid}
+			</if>
+			<if test="groupid != null and groupid != ''">
+				AND a.groupid = #{groupid}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="NodeGroup">
+		SELECT 
+			<include refid="nodeGroupColumns"/>
+		FROM t_nodegroup a
+		<include refid="nodeGroupJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO t_nodegroup(
+			id,
+			nodeid,
+			groupid,
+			station_flag,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag
+		) VALUES (
+			default,
+			#{nodeid},
+			#{groupid},
+			#{stationFlag},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE t_nodegroup SET 	
+			nodeid = #{nodeid},
+			groupid = #{groupid},
+			station_flag = #{stationFlag},
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		UPDATE t_nodegroup SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+</mapper>

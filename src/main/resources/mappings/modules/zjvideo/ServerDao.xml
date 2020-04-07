@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.zjvideo.dao.ServerDao">
+    
+	<sql id="serverColumns">
+		a.id AS "id",
+		a.name AS "name",
+		a.url AS "url",
+		a.ipaddress AS "ipaddress",
+		a.addtine AS "addtine",
+		a.edittime AS "edittime",
+		a.slock AS "slock",
+		a.servertype AS "servertype",
+		a.status AS "status",
+		a.rtmpsd AS "rtmpsd",
+		a.rtmpnd AS "rtmpnd",
+		a.rtmphd AS "rtmphd",
+		a.rtmpvn AS "rtmpvn",
+		a.m3u8sd AS "m3u8sd",
+		a.m3u8nd AS "m3u8nd",
+		a.m3u8hd AS "m3u8hd",
+		a.m3u8vn AS "m3u8vn",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag"
+	</sql>
+	
+	<sql id="serverJoins">
+	</sql>
+    
+	<select id="get" resultType="Server">
+		SELECT 
+			<include refid="serverColumns"/>
+		FROM t_server a
+		<include refid="serverJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="Server">
+		SELECT 
+			<include refid="serverColumns"/>
+		FROM t_server a
+		<include refid="serverJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="name != null and name != ''">
+				AND a.name LIKE 
+					<if test="dbName == 'oracle'">'%'||#{name}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{name}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{name},'%')</if>
+			</if>
+			<if test="status != null and status != '' and status != 3">
+				AND a.status = #{status}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="Server">
+		SELECT 
+			<include refid="serverColumns"/>
+		FROM t_server a
+		<include refid="serverJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO t_server(
+			id,
+			name,
+			url,
+			ipaddress,
+			addtine,
+			edittime,
+			slock,
+			servertype,
+			status,
+			rtmpsd,
+			rtmpnd,
+			rtmphd,
+			rtmpvn,
+			m3u8sd,
+			m3u8nd,
+			m3u8hd,
+			m3u8vn,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag
+		) VALUES (
+			default,
+			#{name},
+			#{url},
+			#{ipaddress},
+			#{addtine},
+			#{edittime},
+			#{slock},
+			#{servertype},
+			#{status},
+			#{rtmpsd},
+			#{rtmpnd},
+			#{rtmphd},
+			#{rtmpvn},
+			#{m3u8sd},
+			#{m3u8nd},
+			#{m3u8hd},
+			#{m3u8vn},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE t_server SET 	
+			name = #{name},
+			url = #{url},
+			ipaddress = #{ipaddress},
+			addtine = #{addtine},
+			edittime = #{edittime},
+			slock = #{slock},
+			servertype = #{servertype},
+			status = #{status},
+			rtmpsd = #{rtmpsd},
+			rtmpnd = #{rtmpnd},
+			rtmphd = #{rtmphd},
+			rtmpvn = #{rtmpvn},
+			m3u8sd = #{m3u8sd},
+			m3u8nd = #{m3u8nd},
+			m3u8hd = #{m3u8hd},
+			m3u8vn = #{m3u8vn},
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		UPDATE t_server SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+</mapper>
